@@ -12,17 +12,17 @@
         <item name="mnp_min">0</item>
         <item name="mnp_max">9</item>
         <item name="mnp_textColor">@android:color/white</item>
-        <item name="mnp_textSize">50sp</item>
+        <item name="mnp_textSize">150sp</item>
         <item name="mnp_paddingHorizontal">5dp</item>
         <item name="mnp_paddingVertical">25dp</item>
     </style>
 
     <style name="MeterViewStyle1">
-        <item name="mv_firstColor">@android:color/black</item>
+        <item name="mv_firstColor">@color/colorTransparente</item>
         <item name="mv_numberOfFirst">5</item>
         <item name="mv_numberOfSecond">1</item>
         <item name="mv_pickerStyle">@style/MeterNumberPickerStyle1</item>
-        <item name="mv_secondColor">@android:color/black</item>
+        <item name="mv_secondColor">@color/colorTransparente</item>
     </style>
 
     <style name="MeterNumberPickerStyle2">
@@ -41,6 +41,13 @@
         <item name="mv_numberOfSecond">1</item>
         <item name="mv_pickerStyle">@style/MeterNumberPickerStyle2</item>
         <item name="mv_secondColor">@android:color/holo_orange_dark</item>
+    </style>
+
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
 </resources>

@@ -2,8 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.tablet.concurso">
+    <!-- ********************************************* -->
+    <!-- Permisos que utiliza la aplicacion -->
+    <!-- ********************************************* -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+
 
     <application
+        android:name="com.tablet.concurso.Clases.Globales"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -11,14 +21,36 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity"
-            android:screenOrientation="landscape">
+
+
+        <!-- *********************************************** -->
+        <!-- ACTIVIDADES DE LA APLICACION -->
+        <!-- *********************************************** -->
+
+        <activity
+            android:name=".Actividades.SplashActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".Actividades.MainActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
+
+        </activity>
+
+
+        <!-- ********************************************* -->
+        <!-- SERVICIOS DE LA APLICACION -->
+        <!-- ********************************************* -->
+        <service
+            android:name=".Servicios.SocketServicio"
+            android:enabled="true" />
     </application>
 
 </manifest>

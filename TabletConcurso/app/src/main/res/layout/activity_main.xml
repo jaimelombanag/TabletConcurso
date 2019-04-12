@@ -1,34 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".Actividades.MainActivity"
+    android:orientation="vertical"
     android:background="@drawable/fondo">
+
+    <FrameLayout
+        android:layout_width="500dp"
+        android:layout_height="250dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/pestana_arriba">
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/txt_nombres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="40dp"
+                android:text="Perla y Jesus"
+                android:textColor="@color/colorBlanco"
+                android:textStyle="bold"
+                android:textSize="40dp"
+                android:layout_gravity="right"/>
+
+            <Button
+                android:id="@+id/btn_valor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="100dp"
+                android:layout_marginRight="50dp"
+                android:background="@drawable/barra_numero"
+                android:text="50.000"
+                android:textStyle="bold"
+                android:textColor="@color/colorBlanco"
+                android:textSize="40dp"
+                android:textAlignment="textEnd"
+                android:paddingEnd="50dp"
+                tools:ignore="OnClick" />
+
+
+        </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/imagen_concursantes"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/base_foto" />
+
+
+
+
+    </FrameLayout>
 
     <com.tablet.concurso.MeterView
         android:id="@+id/meterView1"
         style="@style/MeterViewStyle1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="196dp"
-        android:gravity="center_horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp"/>
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"/>
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="321dp"
-        tools:layout_editor_absoluteY="346dp"
-        android:onClick="Enviar"
-        tools:ignore="MissingConstraints,OnClick" />
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:onClick="EnviarValor"
+        android:layout_gravity="bottom|center_horizontal"
+        tools:ignore="MissingConstraints,OnClick"
+        android:background="@drawable/boton"/>
 
-</android.support.constraint.ConstraintLayout>
+</FrameLayout>
