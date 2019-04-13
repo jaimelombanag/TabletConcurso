@@ -2,6 +2,7 @@ package com.tablet.concurso.Actividades;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +13,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -25,6 +28,7 @@ import com.tablet.concurso.Clases.Globales;
 import com.tablet.concurso.ModelInventario;
 import com.tablet.concurso.R;
 import com.tablet.concurso.Servicios.SocketServicio;
+import com.tablet.concurso.Servicios.Temporizador;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
     private Globales appState;
     private ListView list_concursantes;
     private ListInventarioAdapter salidasAdapter;
+    private ProgressDialog progressDialog;
 
 
 //    ModelInventario[] androidFlavors = {
@@ -55,7 +60,7 @@ public class SplashActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String cmd = intent.getStringExtra("CMD");
             String datos = intent.getStringExtra("DATOS");
-
+            try { progressDialog.dismiss(); }catch (Exception e){}
             if(cmd.equalsIgnoreCase("listaCOncursantes")){
 
                 androidFlavors = new ModelInventario[appState.getDatosConcursantes().size()];
@@ -98,6 +103,24 @@ public class SplashActivity extends AppCompatActivity {
             } catch (Exception e) {
             }
         }
+        /*******************************Para que La pantalla no se apague*********************/
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        try {
+            String valor = getIntent().getExtras().getString("relogin");
+            if(valor.equalsIgnoreCase("relogin")){
+                Intent sendSocket = new Intent();
+                sendSocket.putExtra("CMD", "EnvioSocket0");
+                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
 
         list_concursantes = (ListView) findViewById(R.id.list_concursantes);
 
@@ -105,39 +128,39 @@ public class SplashActivity extends AppCompatActivity {
         try {
             Intent i = new Intent(this, SocketServicio.class);
             startService(i);
+            Intent timer = new Intent(this, Temporizador.class);
+            startService(timer);
         }catch (Exception e ){
             e.printStackTrace();
         }
 
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                Log.i(TAG, "debe enviar");
-//
-//                Jaime();
-//
-//
-//
-//            }
-//        }, 5000);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                Log.i(TAG, "debe enviar");
+
+                //SendInicio();
+
+
+
+            }
+        }, 3000);
 
 
     }
 
 
-    public void Jaime(){
+    public void SendInicio(){
         //Intent intent = new Intent();
         //intent.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
         //intent.putExtra(SocketServicio.KEY_MSG_TO_SERVICE, "JAime lombana");
         //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         //sendBroadcast(intent);
 
-
         Intent sendSocket = new Intent();
-        sendSocket.putExtra("CMD", "EnvioSocket");
-        sendSocket.putExtra("DATA", "JAime lombana");
+        sendSocket.putExtra("CMD", "EnvioSocket0");
         sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
     }
@@ -224,9 +247,11 @@ public class SplashActivity extends AppCompatActivity {
                 Log.i(TAG,  salidasAdapter.getItem(position).getVersionName()+"");
                 Log.i(TAG,  salidasAdapter.getItem(position).getVersionNumber()+"");
 
+                MuestraProcessDialog("Ingresando...");
+
                 Intent sendSocket = new Intent();
                 sendSocket.putExtra("CMD", "EnvioSocket");
-                sendSocket.putExtra("DATA", salidasAdapter.getItem(position).getVersionNumber()+"");
+                sendSocket.putExtra("DATA", salidasAdapter.getItem(position).getVersionNumber());
                 sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
 
@@ -235,13 +260,18 @@ public class SplashActivity extends AppCompatActivity {
 
     }
 
+    public void MuestraProcessDialog(String mensaje){
+        progressDialog = new ProgressDialog(SplashActivity.this, R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(mensaje);
+        progressDialog.show();
+    }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG, "resumeeeen");
-        Intent i = new Intent(this, SocketServicio.class);
-        stopService(i);
+
         if (activityReceiver != null) {
             registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
         }
@@ -253,8 +283,28 @@ public class SplashActivity extends AppCompatActivity {
         unregisterReceiver(activityReceiver);
         Intent data = new Intent();
         setResult(Activity.RESULT_CANCELED, data);
-        Intent i = new Intent(this, SocketServicio.class);
-        stopService(i);
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                try {
+                    Intent i = new Intent(this, SocketServicio.class);
+                    stopService(i);
+                    Intent timer = new Intent(this, Temporizador.class);
+                    stopService(timer);
+                    finish();
+                }catch (Exception e ){
+                    e.printStackTrace();
+                }
+                return true;
+            case KeyEvent.KEYCODE_HOME:
+                Log.i(TAG, "Se Oprimio el Boton de Back");
+
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 

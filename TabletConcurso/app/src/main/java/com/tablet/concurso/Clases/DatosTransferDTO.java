@@ -12,6 +12,7 @@ public class DatosTransferDTO {
     private String idConcursante;
     private ArrayList<DatosConcursantesDTO> listaNombres;
     private String apuesta;
+    private String accion;
 
 
     public String getFuncion() {
@@ -68,5 +69,13 @@ public class DatosTransferDTO {
 
     public void setApuesta(String apuesta) {
         this.apuesta = apuesta;
+    }
+
+    public String getAccion() {
+        return accion;
+    }
+
+    public void setAccion(String accion) {
+        this.accion = accion;
     }
 }

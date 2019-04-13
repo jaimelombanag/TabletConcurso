@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -33,7 +34,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -44,7 +46,7 @@ public class SocketServicio extends Service {
 
 
 
-    private static final String TAG = "TaxisLibresConductor";
+    private static final String TAG = "Concurso";
     private final String ACTION_STRING_SERVICE = "ToService";
     private final String ACTION_STRING_ACTIVITY = "ToActivity";
     private Globales appState;
@@ -57,6 +59,7 @@ public class SocketServicio extends Service {
     private boolean forzarCierre =false;
     private static int tiempoReconexion = 120000;                            //Tiempo para hacer la reconexion si el servidor esta caido
     private  boolean reintentarConexion=false;
+    private int falgReconexion = 0;
 
 
 
@@ -116,10 +119,14 @@ public class SocketServicio extends Service {
                 DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                 datosTransferDTO.setFuncion(Funciones.LOGIN);
 
-                Gson gson = new Gson();
-                String json = gson.toJson(datosTransferDTO);
-                escribirSocket.write(json+ "\r\n");
-                escribirSocket.flush();
+                if(falgReconexion == 1){
+                    falgReconexion = 0;
+                }else{
+                    Gson gson = new Gson();
+                    String json = gson.toJson(datosTransferDTO);
+                    SendInfo(json);
+                }
+
                 /*************************************************************************/
                 String data ;
                 try{
@@ -160,6 +167,8 @@ public class SocketServicio extends Service {
     /******************  Funcione Para Finalizar el Servicio del Socket  **************************/
     /**********************************************************************************************/
     public void desconectarDeServidor(){
+
+        Log.i(TAG, "----------SE CIERRA EL SOCKET");
         appState.setSocketConnected(false);
         if (socket != null && socket.isConnected()) {
             try {
@@ -220,9 +229,6 @@ public class SocketServicio extends Service {
 
                 }
 
-
-
-
                 Intent new_intent = new Intent();
                 new_intent.putExtra("CMD", "listaCOncursantes");
                 new_intent.putExtra("DATA", datos);
@@ -248,6 +254,40 @@ public class SocketServicio extends Service {
                 sendBroadcast(new_intent);
 
 
+            }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.SEND_VALOR)) {
+
+                Intent new_intent = new Intent();
+                new_intent.putExtra("CMD", "send_ok");
+                new_intent.putExtra("DATA", datos);
+                new_intent.setAction(ACTION_STRING_ACTIVITY);
+                sendBroadcast(new_intent);
+
+            }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.MULTIFUNCION)) {
+
+                if(informacion.getAccion().equalsIgnoreCase("0")){
+
+                }else  if(informacion.getAccion().equalsIgnoreCase("1")){
+                    Intent new_intent = new Intent();
+                    new_intent.putExtra("CMD", "desbloqueo");
+                    new_intent.putExtra("DATA", datos);
+                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+                    sendBroadcast(new_intent);
+                }else  if(informacion.getAccion().equalsIgnoreCase("2")){
+
+                    Intent new_intent = new Intent();
+                    new_intent.putExtra("CMD", "relogin");
+                    new_intent.putExtra("DATA", datos);
+                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+                    sendBroadcast(new_intent);
+                }else  if(informacion.getAccion().equalsIgnoreCase("3")){
+                    Intent new_intent = new Intent();
+                    new_intent.putExtra("CMD", "close");
+                    new_intent.putExtra("DATA", datos);
+                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+                    sendBroadcast(new_intent);
+                }
+
+
             }
 
 
@@ -256,7 +296,6 @@ public class SocketServicio extends Service {
         }
 
     }
-
 
     /****************************************************************
      * FUNCION PARA SABER LA DISTANCIA DE DOS PINTOS EN LINEA RECTA
@@ -351,10 +390,25 @@ public class SocketServicio extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Log.i(TAG, "Funcion recibida desde la actividad En el SOCKET: "+ intent.getStringExtra("CMD"));
-            if (intent.getStringExtra("CMD").equalsIgnoreCase("EnvioSocket")) {
+
+            if (intent.getStringExtra("CMD").equalsIgnoreCase("reconecta")) {
+                falgReconexion = 1;
+                iniciarHilo();
+            }else if (intent.getStringExtra("CMD").equalsIgnoreCase("EnvioSocket0")) {
+                try {
+                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                    datosTransferDTO.setFuncion(Funciones.LOGIN);
+                    Gson gson = new Gson();
+                    String json = gson.toJson(datosTransferDTO);
+                    Log.i(TAG, "----se envia: " + json + "\n");
+                    SendInfo(json);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }else if (intent.getStringExtra("CMD").equalsIgnoreCase("EnvioSocket")) {
                 try {
                     String datosEnviar = intent.getStringExtra("DATA");
-
 
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -367,44 +421,66 @@ public class SocketServicio extends Service {
 
                     Gson gson = new Gson();
                     String json = gson.toJson(datosTransferDTO);
-
-                    Log.i(TAG, "Esta conectado: " + appState.isSocketConnected());
-
-                    Log.i(TAG, "----se envia: " + json + "\r\n");
-
-                    escribirSocket.write(json+ "\r\n");
-                    escribirSocket.flush();
-
-
+                    Log.i(TAG, "----se envia: " + json + "\n");
+                    SendInfo(json);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }else if (intent.getStringExtra("CMD").equalsIgnoreCase("EnvioSocket2")) {
                 try {
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     String datosEnviar = intent.getStringExtra("DATA");
 
                     DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                     datosTransferDTO.setFuncion(Funciones.SEND_VALOR);
-                    datosTransferDTO.setIdConcursante(datosEnviar);
+                    datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
                     datosTransferDTO.setValor(datosEnviar);
 
                     Gson gson = new Gson();
                     String json = gson.toJson(datosTransferDTO);
-
-                    Log.i(TAG, "----se envia: " + json + "\r\n");
-
-                    escribirSocket.write(json+ "\r\n");
-                    escribirSocket.flush();
+                    Log.i(TAG, "----se envia: " + json + "\n");
+                    SendInfo(json);
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+            }else if (intent.getStringExtra("CMD").equalsIgnoreCase("EnvioSocket3")) {
+                try {
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                    datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                    datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                    Gson gson = new Gson();
+                    String json = gson.toJson(datosTransferDTO);
+                    Log.i(TAG, "----se envia: " + json + "\n");
+                    SendInfo(json);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
+
+
         }
     };
+
+    public void SendInfo(String datos){
+        Log.i(TAG, "--------SEN ENVIA---------");
+        try{
+            if(datos == null || datos.equalsIgnoreCase("null")|| datos.contains("null")){
+
+            }else{
+                escribirSocket.write(datos+ "\n");
+                escribirSocket.flush();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 
 
