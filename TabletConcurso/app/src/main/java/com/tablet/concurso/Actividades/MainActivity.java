@@ -123,11 +123,11 @@ public class MainActivity extends AppCompatActivity {
 
             }else if(cmd.equalsIgnoreCase("ingreso")){
 
-                stopTimer();
+                //stopTimer();
                 CargaDatos();
             }else if(cmd.equalsIgnoreCase("relogin")){
 
-                stopTimer();
+                //stopTimer();
 
                 Intent activity = new Intent();
                 activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
