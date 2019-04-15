@@ -66,8 +66,8 @@ public class ConnexionTCP {
                 try {
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                     Log.i(TAG, MODULO + "================================Io:" + sharedPreferences.getString(Constantes.IPSocket, "")+ "------");
-                    String IP = sharedPreferences.getString(Constantes.IPSocket, "");
-                    //String IP = "201.217.202.180";
+                    //String IP = sharedPreferences.getString(Constantes.IPSocket, "");
+                    String IP = "201.217.202.180";
                     int Puerto = Constantes.PuertoSocket;
                     socket = new Socket(IP, Puerto);
                     socket.setSoTimeout(10000);
@@ -79,7 +79,7 @@ public class ConnexionTCP {
                     //dataOutputStream = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_16), true);
 
 
-                    dataInputStream = new InputStreamReader(socket.getInputStream());
+                    dataInputStream = new InputStreamReader(socket.getInputStream(), "LATIN1");
                     Log.i(TAG, MODULO + "Socket y Flujos creados " + Puerto + "  "  +  IP);
                     dataOutputStream.println(mensajeEncriptado + "\n\r");
 
@@ -97,6 +97,9 @@ public class ConnexionTCP {
                     e.printStackTrace();
                 } catch (ConnectException e) {
                     Log.e(TAG, MODULO + "Error tipo: ConnectException");
+
+                    sendData(data);
+
                     e.printStackTrace();
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, MODULO + "Error por SocketTimeoutException   " );

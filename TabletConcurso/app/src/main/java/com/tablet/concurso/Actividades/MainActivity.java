@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean bloqueo = false;
     private int contadorPregunta;
     private ConnexionTCP sendData;
+    private Typeface script;
 
 
 
@@ -190,7 +192,12 @@ public class MainActivity extends AppCompatActivity {
         btn_valor = (Button) findViewById(R.id.btn_valor);
         btn_send = (Button) findViewById(R.id.btn_send);
 
-       CargaDatos();
+
+        String fuente = "fuentes/condensed_bold.ttf";
+        this.script = Typeface.createFromAsset(getAssets(),fuente);
+        txt_nombres.setTypeface(script);
+        btn_valor.setTypeface(script);
+        CargaDatos();
 
     }
 

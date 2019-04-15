@@ -9,8 +9,8 @@
     android:background="@drawable/fondo">
 
     <FrameLayout
-        android:layout_width="500dp"
-        android:layout_height="250dp"
+        android:layout_width="753dp"
+        android:layout_height="330dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:background="@drawable/pestana_arriba">
@@ -31,22 +31,22 @@
                 android:text="Perla y Jesus"
                 android:textColor="@color/colorBlanco"
                 android:textStyle="bold"
-                android:textSize="35dp"
+                android:textSize="60dp"
                 android:layout_gravity="right"/>
 
             <Button
                 android:id="@+id/btn_valor"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="100dp"
+                android:layout_height="170dp"
+                android:layout_marginLeft="120dp"
                 android:layout_marginRight="50dp"
                 android:background="@drawable/barra_numero"
-                android:text="50.000"
+                android:text="$50.000"
                 android:textStyle="bold"
                 android:textColor="@color/colorBlanco"
-                android:textSize="40dp"
+                android:textSize="80dp"
                 android:textAlignment="textEnd"
-                android:paddingEnd="50dp"
+                android:paddingEnd="80dp"
                 tools:ignore="OnClick" />
 
 
@@ -55,10 +55,10 @@
 
         <ImageView
             android:id="@+id/imagen_concursantes"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/base_foto" />
 
 

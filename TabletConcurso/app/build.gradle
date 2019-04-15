@@ -6,8 +6,8 @@ android {
         applicationId "com.tablet.concurso"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 1007
-        versionName "1.0.7"
+        versionCode 1012
+        versionName "1.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
