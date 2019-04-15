@@ -1,5 +1,6 @@
 package com.tablet.concurso.Actividades;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -9,8 +10,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +44,12 @@ import com.tablet.concurso.Servicios.SocketServicio;
 import com.tablet.concurso.Servicios.Temporizador;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -55,6 +68,9 @@ public class SplashActivity extends AppCompatActivity {
     private final static String FILE = "ipSocket.txt";
     private ConnexionTCP sendData;
     private EditText txt_ipdireccion;
+    private int REQUEST_PERMISSION =1;
+    private int REQUEST_PERMISSION2 =2;
+    private String file = "IP_Direccion.txt";
 
 
 //    ModelInventario[] androidFlavors = {
@@ -120,6 +136,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
         txt_ipdireccion = (EditText) findViewById(R.id.txt_ipdireccion);
+        Permisos();
 
         try {
             String valor = getIntent().getExtras().getString("relogin");
@@ -141,21 +158,14 @@ public class SplashActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-
-
         list_concursantes = (ListView) findViewById(R.id.list_concursantes);
-
         appState.setTimerSend(0);
 
-        establecerIpInicial();
+        //LeeIpInicial();
         ListaDatos();
+        LeerIp();
 
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
-        editor.commit();
 
 
 //        try {
@@ -188,90 +198,108 @@ public class SplashActivity extends AppCompatActivity {
     /**********************************************************************************************/
     /**********************************************************************************************/
     /**********************************************************************************************/
-    private void establecerIpInicial() {
-        // Comprobamos si existe el archivo
-        if (existsFile(FILE)) {
-            // En el caso de que exista, intentamos rellenar los EditText, si no
-            // se rellenan de forma correcta, el archivo.txt estaba corrupto.
-            Log.i(TAG, "Existe");
-            if (!saveIpDireccion()) {
-                Log.i(TAG, "Salva");
-                // Avisamos al usuario de que el archivo era corrupto.
-                Toast.makeText(SplashActivity.this,
-                        "Archivo corrupto, reiniciando parámetros...",
-                        Toast.LENGTH_LONG).show();
-                // Creamos de nuevo el archivo.
-                crearArchivoIp();
-                // Rellenamos los EditText con los valores asignados por defecto
-                // en el archvio txt.
-                saveIpDireccion();
-            }else{
-                Log.i(TAG, "No Salva");
-            }
-
+    public void LeeIpInicial(){
+        String strFileName = file; // file name
+        File myFile = new File(Environment.getExternalStorageDirectory() + "/Download/"); // file path
+        if (!myFile.exists()) { // directory is exist or not
+            myFile.mkdirs();    // if not create new
+            Log.e("DataStoreSD 0 ", myFile.toString());
         } else {
-            Log.i(TAG, "No Existe");
-            // En el caso de que no existiera el archivo txt lo creamos y rellenamos
-            // los EditText.
-            crearArchivoIp();
-            saveIpDireccion();
+            myFile = new File(Environment.getExternalStorageDirectory() + "/Download/");
+            Log.e("DataStoreSD 1 ", myFile.toString());
         }
-    }
 
-    /**********************************************************************************************/
-    public boolean existsFile(String fileName) {
-        for (String tmp : fileList()) {
-            if (tmp.equals(fileName))
-                return true;
-        }
-        return false;
-    }
-    /**********************************************************************************************/
-    private void crearArchivoIp() {
         try {
-            // Creamos un objeto OutputStreamWriter, que será el que nos permita
-            // escribir en el archivo de texto. Si el archivo no existía se creará
-            // automáticamente.
-            // La ruta en la que se creará el archivo será /ruta de nuestro programa/data/data/
-
-            OutputStreamWriter outSWMensaje = new OutputStreamWriter(
-                    openFileOutput(FILE, Context.MODE_PRIVATE));
-            // Escribimos los 5 tiempos iniciales en el archivo.
-            outSWMensaje.write("5\n5\n5\n5\n5\n");
-            // Cerramos el flujo de escritura del archivo, este paso es obligatorio,
-            // de no hacerlo no se podrá acceder posteriormente al archivo.
-            outSWMensaje.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            File Notefile = new File(myFile, strFileName);
+            FileWriter writer = new FileWriter(Notefile); // set file path & name to write
+            writer.append("1.1.1.1"); // write string
+            writer.flush();
+            writer.close();
+            Log.e("DataStoreSD 2 ", myFile.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    public void Permisos(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION);
+
+            //return;
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION2);
+
+            return;
+        }
+    }
+
+
     /**********************************************************************************************/
-    private boolean saveIpDireccion() {
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted.
+            } else {
+                // User refused to grant permission.
+            }
+        }else  if (requestCode == REQUEST_PERMISSION2) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted.
+            } else {
+                // User refused to grant permission.
+            }
+        }
+    }
+    /**********************************************************************************************/
+    public void LeerIp(){
+        String line = null;
+
         try {
-            // Creamos un objeto InputStreamReader, que será el que nos permita
-            // leer el contenido del archivo de texto.
-            InputStreamReader archivo = new InputStreamReader(
-                    openFileInput(FILE));
-            // Creamos un objeto buffer, en el que iremos almacenando el contenido
-            // del archivo.
-            BufferedReader br = new BufferedReader(archivo);
-            // Por cada EditText leemos una línea y escribimos el contenido en el
-            // EditText.
-            String texto = br.readLine();
-            //et1Alarma.setText(texto);
+            FileInputStream fileInputStream = new FileInputStream (new File(Environment.getExternalStorageDirectory() + "/Download/" + file));
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            while ( (line = bufferedReader.readLine()) != null )
+            {
+                stringBuilder.append(line + System.getProperty("line.separator"));
+            }
+            fileInputStream.close();
+            line = stringBuilder.toString();
+
+            line = line.replace(" ", "");
+            line = line.replace("\r\n", "");
+            line = line.replace("\r", "");
+            line = line.replace("\n", "");
 
 
-            // Cerramos el flujo de lectura del archivo.
-            br.close();
-            return true;
+            Log.i(TAG, "-----Lo q se lee es"  +  line + "-----");
 
-        } catch (Exception e) {
-            return false;
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if(line.equalsIgnoreCase("1.1.1.1")){
+                editor.putString(Constantes.IPSocket, "192.168.122.100");
+            }else{
+                editor.putString(Constantes.IPSocket, line);
+            }
+            editor.commit();
+
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            Log.d(TAG, ex.getMessage());
+        }
+        catch(IOException ex) {
+            Log.d(TAG, ex.getMessage());
         }
     }
-    /**********************************************************************************************/
-    /**********************************************************************************************/
+
     /**********************************************************************************************/
     public void SendInicio(){
         //Intent intent = new Intent();
@@ -413,10 +441,10 @@ public class SplashActivity extends AppCompatActivity {
 
 
     public void Listadatos(View v){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
-        editor.commit();
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
+//        editor.commit();
 
         ListaDatos();
     }

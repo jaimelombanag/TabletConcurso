@@ -3,6 +3,7 @@ package com.tablet.concurso.Servicios;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -64,8 +65,9 @@ public class ConnexionTCP {
             public void run() {
                 try {
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    Log.i(TAG, MODULO + "================================Io:      " + sharedPreferences.getString(Constantes.IPSocket, ""));
+                    Log.i(TAG, MODULO + "================================Io:" + sharedPreferences.getString(Constantes.IPSocket, "")+ "------");
                     String IP = sharedPreferences.getString(Constantes.IPSocket, "");
+                    //String IP = "201.217.202.180";
                     int Puerto = Constantes.PuertoSocket;
                     socket = new Socket(IP, Puerto);
                     socket.setSoTimeout(10000);
@@ -190,6 +192,12 @@ public class ConnexionTCP {
 
                 if(informacion.getAccion().equalsIgnoreCase("0")){
 
+                    Intent new_intent = new Intent();
+                    new_intent.putExtra("CMD", "reenvio");
+                    new_intent.putExtra("DATA", datos);
+                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+                    context.sendBroadcast(new_intent);
+
                 }else  if(informacion.getAccion().equalsIgnoreCase("1")){
                     Intent new_intent = new Intent();
                     new_intent.putExtra("CMD", "desbloqueo");
@@ -218,9 +226,5 @@ public class ConnexionTCP {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
     }
-
 }

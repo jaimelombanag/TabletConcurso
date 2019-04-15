@@ -35,6 +35,7 @@
         android:layout_height="wrap_content"
         android:text="192.168.122.100"
         android:layout_gravity="bottom"
-        android:background="@color/colorBlanco"/>
+        android:background="@color/colorBlanco"
+        android:visibility="gone"/>
 
 </FrameLayout>

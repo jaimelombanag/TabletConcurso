@@ -73,7 +73,18 @@ public class MainActivity extends AppCompatActivity {
 
 
                 Log.i(TAG, "--------Debe empezar el Timer------------");
-                startTimer();
+                //startTimer();
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                Gson gson = new Gson();
+
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
 
                 appState.setTimerSend(1);
 
@@ -81,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 bloqueo = true;
             }else if(cmd.equalsIgnoreCase("desbloqueo")){
 
-                stopTimer();
+                //stopTimer();
                 btn_send.setBackgroundResource(R.drawable.boton);
                 bloqueo = false;
 
@@ -127,7 +138,30 @@ public class MainActivity extends AppCompatActivity {
 
             }else if(cmd.equalsIgnoreCase("close")){
                 finish();
+            }else if(cmd.equalsIgnoreCase("reenvio")){
+                try {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Log.i(TAG, "debe enviar");
+                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                            datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                            datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                            Gson gson2 = new Gson();
+
+                            String json = gson2.toJson(datosTransferDTO);
+                            sendData = new ConnexionTCP(getApplicationContext());
+                            sendData.sendData(json);
+                        }
+                    }, 5000);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
+
+
         }
     };
 
