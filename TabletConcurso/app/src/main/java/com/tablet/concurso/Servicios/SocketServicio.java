@@ -63,6 +63,7 @@ public class SocketServicio extends Service {
 
 
 
+
     //from MainActivity to MyService
     public static final String KEY_MSG_TO_SERVICE = "KEY_MSG_TO_SERVICE";
     public static final String ACTION_MSG_TO_SERVICE = "MSG_TO_SERVICE";
@@ -402,6 +403,12 @@ public class SocketServicio extends Service {
                     String json = gson.toJson(datosTransferDTO);
                     Log.i(TAG, "----se envia: " + json + "\n");
                     SendInfo(json);
+
+
+
+
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

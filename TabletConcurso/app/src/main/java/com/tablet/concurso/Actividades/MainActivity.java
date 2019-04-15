@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -27,11 +28,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.tablet.concurso.Clases.Constantes;
+import com.tablet.concurso.Clases.DatosTransferDTO;
+import com.tablet.concurso.Clases.Funciones;
 import com.tablet.concurso.Clases.Globales;
 import com.tablet.concurso.MeterView;
 import com.tablet.concurso.ModelInventario;
 import com.tablet.concurso.R;
+import com.tablet.concurso.Servicios.ConnexionTCP;
 import com.tablet.concurso.Servicios.SocketServicio;
 
 import java.text.DecimalFormat;
@@ -53,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Timer multifuncion = new Timer();
     private boolean bloqueo = false;
     private int contadorPregunta;
+    private ConnexionTCP sendData;
 
 
 
@@ -65,7 +71,12 @@ public class MainActivity extends AppCompatActivity {
 
             if(cmd.equalsIgnoreCase("send_ok")){
 
+
+                Log.i(TAG, "--------Debe empezar el Timer------------");
                 startTimer();
+
+                appState.setTimerSend(1);
+
                 btn_send.setBackgroundResource(R.drawable.boton_on);
                 bloqueo = true;
             }else if(cmd.equalsIgnoreCase("desbloqueo")){
@@ -79,15 +90,33 @@ public class MainActivity extends AppCompatActivity {
 
 
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                Intent sendSocket = new Intent();
-                sendSocket.putExtra("CMD", "EnvioSocket");
-                sendSocket.putExtra("DATA", sharedPreferences.getString(Constantes.idConcursantes, ""));
-                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket");
+//                sendSocket.putExtra("DATA", sharedPreferences.getString(Constantes.idConcursantes, ""));
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+
+                Gson gson = new Gson();
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
+
+
+
 
             }else if(cmd.equalsIgnoreCase("ingreso")){
+
+                stopTimer();
                 CargaDatos();
             }else if(cmd.equalsIgnoreCase("relogin")){
+
+                stopTimer();
 
                 Intent activity = new Intent();
                 activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -198,11 +227,27 @@ public class MainActivity extends AppCompatActivity {
             }else{
 
                 MuestraProcessDialog("Enviando...");
-                Intent sendSocket = new Intent();
-                sendSocket.putExtra("CMD", "EnvioSocket2");
-                sendSocket.putExtra("DATA",  valorFinal+"");
-                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket2");
+//                sendSocket.putExtra("DATA",  valorFinal+"");
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+
+
+
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.SEND_VALOR);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                datosTransferDTO.setValor(valorFinal+"");
+
+                Gson gson = new Gson();
+                String json = gson.toJson(datosTransferDTO);
+
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
+
             }
         }
 
@@ -241,8 +286,32 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void startTimer(){
-        multifuncion.scheduleAtFixedRate(new SendMultifuncion(), 0, 1000);
+        try {
+            multifuncion.scheduleAtFixedRate(new SendMultifuncion(), 0, 1000);
+        }catch (Exception e){
+
+            stopTimer();
+            ReStartTimer();
+
+
+            e.printStackTrace();
+        }
+
     }
+
+
+    public void ReStartTimer(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                startTimer();
+
+
+            }
+        }, 2000);
+    }
+
     private void stopTimer(){
         multifuncion.cancel();
     }
@@ -250,12 +319,23 @@ public class MainActivity extends AppCompatActivity {
     private class SendMultifuncion extends TimerTask {
         public void run() {
             contadorPregunta++;
-            if(contadorPregunta > 20){
+            if(contadorPregunta > 5){
                 contadorPregunta = 0;
-                Intent sendSocket = new Intent();
-                sendSocket.putExtra("CMD", "EnvioSocket3");
-                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket3");
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                Gson gson = new Gson();
+
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
             }
         }
     }

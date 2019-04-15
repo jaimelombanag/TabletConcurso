@@ -69,6 +69,11 @@ public class Temporizador extends Service {
                 }
             }
 
+            if(appState.getTimerSend()==1){
+
+
+            }
+
 
         }
     }

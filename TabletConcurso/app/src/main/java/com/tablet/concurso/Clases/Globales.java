@@ -8,6 +8,7 @@ public class Globales extends Application {
 
     private String TAG = "TaxisLibres";
     private boolean socketConnected = false;
+    private int timerSend;
 
     ArrayList<DatosConcursantesDTO> datosConcursantes;
 
@@ -36,5 +37,13 @@ public class Globales extends Application {
 
     public void setDatosConcursantes(ArrayList<DatosConcursantesDTO> datosConcursantes) {
         this.datosConcursantes = datosConcursantes;
+    }
+
+    public int getTimerSend() {
+        return timerSend;
+    }
+
+    public void setTimerSend(int timerSend) {
+        this.timerSend = timerSend;
     }
 }

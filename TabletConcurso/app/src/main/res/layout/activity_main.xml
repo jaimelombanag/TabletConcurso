@@ -31,7 +31,7 @@
                 android:text="Perla y Jesus"
                 android:textColor="@color/colorBlanco"
                 android:textStyle="bold"
-                android:textSize="40dp"
+                android:textSize="35dp"
                 android:layout_gravity="right"/>
 
             <Button

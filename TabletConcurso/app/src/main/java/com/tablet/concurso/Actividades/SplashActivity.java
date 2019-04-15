@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,18 +20,25 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.tablet.concurso.Adapters.ListInventarioAdapter;
+import com.tablet.concurso.Clases.Constantes;
 import com.tablet.concurso.Clases.DatosTransferDTO;
 import com.tablet.concurso.Clases.Funciones;
 import com.tablet.concurso.Clases.Globales;
 import com.tablet.concurso.ModelInventario;
 import com.tablet.concurso.R;
+import com.tablet.concurso.Servicios.ConnexionTCP;
 import com.tablet.concurso.Servicios.SocketServicio;
 import com.tablet.concurso.Servicios.Temporizador;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +52,9 @@ public class SplashActivity extends AppCompatActivity {
     private ListView list_concursantes;
     private ListInventarioAdapter salidasAdapter;
     private ProgressDialog progressDialog;
+    private final static String FILE = "ipSocket.txt";
+    private ConnexionTCP sendData;
+    private EditText txt_ipdireccion;
 
 
 //    ModelInventario[] androidFlavors = {
@@ -106,13 +118,23 @@ public class SplashActivity extends AppCompatActivity {
         /*******************************Para que La pantalla no se apague*********************/
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+
+        txt_ipdireccion = (EditText) findViewById(R.id.txt_ipdireccion);
+
         try {
             String valor = getIntent().getExtras().getString("relogin");
             if(valor.equalsIgnoreCase("relogin")){
-                Intent sendSocket = new Intent();
-                sendSocket.putExtra("CMD", "EnvioSocket0");
-                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket0");
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.LOGIN);
+                Gson gson = new Gson();
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
             }
 
         }catch (Exception e){
@@ -124,34 +146,133 @@ public class SplashActivity extends AppCompatActivity {
 
         list_concursantes = (ListView) findViewById(R.id.list_concursantes);
 
+        appState.setTimerSend(0);
 
-        try {
-            Intent i = new Intent(this, SocketServicio.class);
-            startService(i);
-            Intent timer = new Intent(this, Temporizador.class);
-            startService(timer);
-        }catch (Exception e ){
-            e.printStackTrace();
-        }
+        establecerIpInicial();
+        ListaDatos();
 
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Log.i(TAG, "debe enviar");
-
-                //SendInicio();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
+        editor.commit();
 
 
-
-            }
-        }, 3000);
+//        try {
+//            Intent i = new Intent(this, SocketServicio.class);
+//            startService(i);
+//            Intent timer = new Intent(this, Temporizador.class);
+//            startService(timer);
+//        }catch (Exception e ){
+//            e.printStackTrace();
+//        }
+//
+//
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                Log.i(TAG, "debe enviar");
+//
+//                //SendInicio();
+//
+//
+//
+//            }
+//        }, 3000);
 
 
     }
 
 
+    /**********************************************************************************************/
+    /**********************************************************************************************/
+    /**********************************************************************************************/
+    private void establecerIpInicial() {
+        // Comprobamos si existe el archivo
+        if (existsFile(FILE)) {
+            // En el caso de que exista, intentamos rellenar los EditText, si no
+            // se rellenan de forma correcta, el archivo.txt estaba corrupto.
+            Log.i(TAG, "Existe");
+            if (!saveIpDireccion()) {
+                Log.i(TAG, "Salva");
+                // Avisamos al usuario de que el archivo era corrupto.
+                Toast.makeText(SplashActivity.this,
+                        "Archivo corrupto, reiniciando parámetros...",
+                        Toast.LENGTH_LONG).show();
+                // Creamos de nuevo el archivo.
+                crearArchivoIp();
+                // Rellenamos los EditText con los valores asignados por defecto
+                // en el archvio txt.
+                saveIpDireccion();
+            }else{
+                Log.i(TAG, "No Salva");
+            }
+
+        } else {
+            Log.i(TAG, "No Existe");
+            // En el caso de que no existiera el archivo txt lo creamos y rellenamos
+            // los EditText.
+            crearArchivoIp();
+            saveIpDireccion();
+        }
+    }
+
+    /**********************************************************************************************/
+    public boolean existsFile(String fileName) {
+        for (String tmp : fileList()) {
+            if (tmp.equals(fileName))
+                return true;
+        }
+        return false;
+    }
+    /**********************************************************************************************/
+    private void crearArchivoIp() {
+        try {
+            // Creamos un objeto OutputStreamWriter, que será el que nos permita
+            // escribir en el archivo de texto. Si el archivo no existía se creará
+            // automáticamente.
+            // La ruta en la que se creará el archivo será /ruta de nuestro programa/data/data/
+
+            OutputStreamWriter outSWMensaje = new OutputStreamWriter(
+                    openFileOutput(FILE, Context.MODE_PRIVATE));
+            // Escribimos los 5 tiempos iniciales en el archivo.
+            outSWMensaje.write("5\n5\n5\n5\n5\n");
+            // Cerramos el flujo de escritura del archivo, este paso es obligatorio,
+            // de no hacerlo no se podrá acceder posteriormente al archivo.
+            outSWMensaje.close();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    /**********************************************************************************************/
+    private boolean saveIpDireccion() {
+        try {
+            // Creamos un objeto InputStreamReader, que será el que nos permita
+            // leer el contenido del archivo de texto.
+            InputStreamReader archivo = new InputStreamReader(
+                    openFileInput(FILE));
+            // Creamos un objeto buffer, en el que iremos almacenando el contenido
+            // del archivo.
+            BufferedReader br = new BufferedReader(archivo);
+            // Por cada EditText leemos una línea y escribimos el contenido en el
+            // EditText.
+            String texto = br.readLine();
+            //et1Alarma.setText(texto);
+
+
+            // Cerramos el flujo de lectura del archivo.
+            br.close();
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    /**********************************************************************************************/
+    /**********************************************************************************************/
+    /**********************************************************************************************/
     public void SendInicio(){
         //Intent intent = new Intent();
         //intent.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
@@ -159,10 +280,18 @@ public class SplashActivity extends AppCompatActivity {
         //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         //sendBroadcast(intent);
 
-        Intent sendSocket = new Intent();
-        sendSocket.putExtra("CMD", "EnvioSocket0");
-        sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+        DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+        datosTransferDTO.setFuncion(Funciones.LOGIN);
+        Gson gson = new Gson();
+        String json = gson.toJson(datosTransferDTO);
+        sendData = new ConnexionTCP(getApplicationContext());
+        sendData.sendData(json);
+
+//        Intent sendSocket = new Intent();
+//        sendSocket.putExtra("CMD", "EnvioSocket0");
+//        sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
     }
 
     public void MuestraConcursantes(){
@@ -249,11 +378,26 @@ public class SplashActivity extends AppCompatActivity {
 
                 MuestraProcessDialog("Ingresando...");
 
-                Intent sendSocket = new Intent();
-                sendSocket.putExtra("CMD", "EnvioSocket");
-                sendSocket.putExtra("DATA", salidasAdapter.getItem(position).getVersionNumber());
-                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket");
+//                sendSocket.putExtra("DATA", salidasAdapter.getItem(position).getVersionNumber());
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Constantes.idConcursantes, salidasAdapter.getItem(position).getVersionNumber());
+                editor.commit();
+
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);
+                datosTransferDTO.setIdConcursante(salidasAdapter.getItem(position).getVersionNumber());
+
+                Gson gson = new Gson();
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
 
             }
         });
@@ -265,6 +409,26 @@ public class SplashActivity extends AppCompatActivity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(mensaje);
         progressDialog.show();
+    }
+
+
+    public void Listadatos(View v){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
+        editor.commit();
+
+        ListaDatos();
+    }
+
+    public void ListaDatos(){
+        DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+        datosTransferDTO.setFuncion(Funciones.LOGIN);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(datosTransferDTO);
+        sendData = new ConnexionTCP(getApplicationContext());
+        sendData.sendData(json);
     }
 
     @Override
