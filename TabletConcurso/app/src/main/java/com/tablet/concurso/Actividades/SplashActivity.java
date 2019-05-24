@@ -167,7 +167,6 @@ public class SplashActivity extends AppCompatActivity {
 
 
 
-
 //        try {
 //            Intent i = new Intent(this, SocketServicio.class);
 //            startService(i);

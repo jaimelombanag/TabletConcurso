@@ -202,26 +202,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void CargaDatos(){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        //extraemos el drawable en un bitmap
-        Drawable originalDrawable = getResources().getDrawable(R.drawable.foto_pareja);
-        //Bitmap originalBitmap = ((BitmapDrawable) originalDrawable).getBitmap();
+        try {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            //extraemos el drawable en un bitmap
+            Drawable originalDrawable = getResources().getDrawable(R.drawable.foto_pareja);
+            //Bitmap originalBitmap = ((BitmapDrawable) originalDrawable).getBitmap();
 
-        Bitmap originalBitmap = StringToBitMap(sharedPreferences.getString(Constantes.fotoConcursantes, ""));
-
-
-        //creamos el drawable redondeado
-        RoundedBitmapDrawable roundedDrawable =
-                RoundedBitmapDrawableFactory.create(getResources(), originalBitmap);
-
-        //asignamos el CornerRadius
-        roundedDrawable.setCornerRadius(originalBitmap.getHeight());
-        imagen_concursantes.setImageDrawable(roundedDrawable);
+            Bitmap originalBitmap = StringToBitMap(sharedPreferences.getString(Constantes.fotoConcursantes, ""));
 
 
+            //creamos el drawable redondeado
+            RoundedBitmapDrawable roundedDrawable =
+                    RoundedBitmapDrawableFactory.create(getResources(), originalBitmap);
 
-        txt_nombres.setText(sharedPreferences.getString(Constantes.nombresConcursantes, ""));
-        btn_valor.setText(mascaraNumero(Long.parseLong(sharedPreferences.getString(Constantes.valorConcursantes, ""))));
+            //asignamos el CornerRadius
+            roundedDrawable.setCornerRadius(originalBitmap.getHeight());
+            imagen_concursantes.setImageDrawable(roundedDrawable);
+
+
+            txt_nombres.setText(sharedPreferences.getString(Constantes.nombresConcursantes, ""));
+            btn_valor.setText(mascaraNumero(Long.parseLong(sharedPreferences.getString(Constantes.valorConcursantes, ""))));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 

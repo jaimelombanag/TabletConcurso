@@ -66,8 +66,8 @@ public class ConnexionTCP {
                 try {
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                     Log.i(TAG, MODULO + "================================Io:" + sharedPreferences.getString(Constantes.IPSocket, "")+ "------");
-                    //String IP = sharedPreferences.getString(Constantes.IPSocket, "");
-                    String IP = "201.217.202.180";
+                    String IP = sharedPreferences.getString(Constantes.IPSocket, "");
+                    //String IP = "201.217.202.180";
                     int Puerto = Constantes.PuertoSocket;
                     socket = new Socket(IP, Puerto);
                     socket.setSoTimeout(10000);
