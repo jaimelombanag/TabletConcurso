@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText enterText;
     private EditText enterId;
     private TextView showText;
+    private TextView showText2;
     private String file = "IP_Direccion.txt";
     private String file2 = "ID_Save.txt";
     private String fileContents;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         enterText = findViewById(R.id.enterText);
         enterId = findViewById(R.id.enterId);
         showText = findViewById(R.id.showText);
+        showText2 = findViewById(R.id.showText2);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -175,6 +177,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("SAVE", ex.getMessage());
                 }
 
+                LeoId();
+
             }
         });
     }
@@ -213,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 File Notefile = new File(myFile, strFileName);
                 FileWriter writer = new FileWriter(Notefile); // set file path & name to write
-                writer.append(fileContents); // write string
+                writer.append(fileContents2); // write string
                 writer.flush();
                 writer.close();
                 Log.e("DataStoreSD 2 ", myFile.toString());
@@ -223,17 +227,48 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-            Toast.makeText(getBaseContext(), "Guardado ID Correctamente... " +fileContents, Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Guardado ID Correctamente... " +fileContents2, Toast.LENGTH_LONG).show();
 
            ;
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        enterText.setText("");
+        enterId.setText("");
     }
 
 
+    public void LeoId(){
+
+        String line = null;
+
+        try {
+            FileInputStream fileInputStream = new FileInputStream (new File(Environment.getExternalStorageDirectory() + "/Download/" + file2));
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            while ( (line = bufferedReader.readLine()) != null )
+            {
+                stringBuilder.append(line + System.getProperty("line.separator"));
+            }
+            fileInputStream.close();
+            line = stringBuilder.toString();
+
+            showText2.setText(line);
+
+
+
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            Log.d("SAVE", ex.getMessage());
+        }
+        catch(IOException ex) {
+            Log.d("SAVE", ex.getMessage());
+        }
+
+    }
 
 
 
