@@ -77,7 +77,7 @@
 
         <com.tablet.concurso.MeterView
             android:id="@+id/meterView1"
-            style="@style/MeterViewStyle3"
+            style="@style/MeterViewStyleywo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>

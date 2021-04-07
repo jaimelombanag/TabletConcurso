@@ -259,11 +259,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Aplicación bloqueada", Toast.LENGTH_LONG).show();
         }else{
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            int valorInicial = Integer.parseInt(sharedPreferences.getString(Constantes.valorConcursantes, ""));
-
-
-
-
+            int valorInicial = 0;
+            if(!sharedPreferences.getString(Constantes.valorConcursantes, "").equals("")) Integer.parseInt(sharedPreferences.getString(Constantes.valorConcursantes, ""));
 
             if(valorFinal > valorInicial){
 
