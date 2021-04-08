@@ -246,8 +246,6 @@ public class MainActivity extends AppCompatActivity {
                 valorFinal =  (meterView1.getValue() * 1000) + meterView2.getValue();
             }
 
-
-
         }
 
 
@@ -259,8 +257,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Aplicación bloqueada", Toast.LENGTH_LONG).show();
         }else{
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            int valorInicial = 0;
-            if(!sharedPreferences.getString(Constantes.valorConcursantes, "").equals("")) Integer.parseInt(sharedPreferences.getString(Constantes.valorConcursantes, ""));
+            int valorInicial = Integer.parseInt(sharedPreferences.getString(Constantes.valorConcursantes, ""));
 
             if(valorFinal > valorInicial){
 
