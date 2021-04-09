@@ -17,6 +17,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.StyleRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -283,15 +284,25 @@ public class MeterNumberPicker extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+
         if (!isEnabled()) {
             return false;
         }
+
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain();
         }
+        /*
         velocityTracker.addMovement(event);
 
+ */
+
         int action = event.getAction() & MotionEvent.ACTION_MASK;
+
+
+        //Log.i("JAIME", "===========onTouchEvent===========   "  + action);
+
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 if (!flingScroller.isFinished()) {
@@ -312,6 +323,9 @@ public class MeterNumberPicker extends View {
                 int rawScrollOffset = (int) (lastDownOrMoveEventY - lastDownEventY);
                 calculateCurrentOffsets(rawScrollOffset, getMeasuredHeight());
                 invalidate();
+
+                Log.i("JAIME", "===========Valor===========   "  + rawScrollOffset);
+
             }
             break;
             case MotionEvent.ACTION_UP: {
@@ -327,6 +341,9 @@ public class MeterNumberPicker extends View {
                     value = getValue(adjustedValueOffset);
                     adjust(measuredHeight, adjustedValueOffset);
                 }
+
+                Log.i("JAIME", "===========value===========   "  + value);
+
                 invalidate();
                 velocityTracker.recycle();
                 velocityTracker = null;
@@ -337,10 +354,12 @@ public class MeterNumberPicker extends View {
             break;
         }
         return true;
+
     }
 
     @Override
     public void computeScroll() {
+
         Scroller scroller = flingScroller;
         if (scroller.isFinished()) {
             scroller = adjustScroller;
@@ -373,6 +392,8 @@ public class MeterNumberPicker extends View {
         }
 
         invalidate();
+
+
     }
 
     private void calculateCurrentOffsets(int rawScrollOffset, int measuredHeight) {

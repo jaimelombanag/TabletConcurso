@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
@@ -41,11 +42,8 @@ public class MeterView extends LinearLayout {
         init(context, attrs);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public MeterView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs);
-    }
+
+
 
     private void init(Context context, @Nullable AttributeSet attrs) {
         setOrientation(HORIZONTAL);
@@ -70,6 +68,8 @@ public class MeterView extends LinearLayout {
             LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             lp.weight = 1;
             addView(meterNumberPicker, lp);
+
+            Log.i("JAIME", "---------------   "  );
         }
     }
 
@@ -92,6 +92,20 @@ public class MeterView extends LinearLayout {
         return !enabled || super.onInterceptTouchEvent(ev);
     }
 
+
+    @Override
+    public void setOnClickListener(@Nullable OnClickListener l) {
+
+        super.setOnClickListener(l);
+    }
+
+
+    @Override
+    public void setOnLongClickListener(@Nullable OnLongClickListener l) {
+        super.setOnLongClickListener(l);
+        Log.i("JAIME", "---------------   "  );
+    }
+
     /**
      * Returns current value of the widget. Works only if "mnp_max" is not bigger then 9.
      * For other cases you have to extend this view for now.
@@ -102,8 +116,14 @@ public class MeterView extends LinearLayout {
         for (int i = 0; i < getChildCount(); i++) {
             MeterNumberPicker picker = (MeterNumberPicker) getChildAt(i);
             result += picker.getValue() * Math.pow(10, --koeff);
+            Log.i("JAIME", "---------------   "     + result);
         }
+
+
+
+
         return result;
+
     }
 
     /**
@@ -115,6 +135,9 @@ public class MeterView extends LinearLayout {
         for (int i = 0; i < getChildCount(); i++) {
             MeterNumberPicker picker = (MeterNumberPicker) getChildAt(i);
             int number = (int) (value / Math.pow(10, --koeff));
+
+            Log.i("JAIME", "---------------   "     + number);
+
             if (i == 0 && number > 9) {
                 throw new IllegalArgumentException("Number of digits cannot be greater then pickers number");
             }

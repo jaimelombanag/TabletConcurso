@@ -117,7 +117,6 @@ public class SplashActivity extends AppCompatActivity {
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,9 +133,9 @@ public class SplashActivity extends AppCompatActivity {
         /*******************************Para que La pantalla no se apague*********************/
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
         txt_ipdireccion = (EditText) findViewById(R.id.txt_ipdireccion);
         Permisos();
+
 
         try {
             String valor = getIntent().getExtras().getString("relogin");
