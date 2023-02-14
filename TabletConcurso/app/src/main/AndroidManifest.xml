@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.tablet.concurso">
-
     <!-- ********************************************* -->
     <!-- Permisos que utiliza la aplicacion -->
     <!-- ********************************************* -->
@@ -11,7 +10,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
 
     <application
         android:name=".Clases.Globales"
@@ -22,11 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <activity
+            android:name=".Actividades.GridActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
+
         <service
             android:name=".Servicios.Temporizador"
             android:enabled="true"
-            android:exported="true"></service>
-        <!-- *********************************************** -->
+            android:exported="true" /> <!-- *********************************************** -->
         <!-- ACTIVIDADES DE LA APLICACION -->
         <!-- *********************************************** -->
         <activity

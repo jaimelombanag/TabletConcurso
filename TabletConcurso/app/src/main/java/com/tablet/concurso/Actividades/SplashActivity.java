@@ -166,6 +166,14 @@ public class SplashActivity extends AppCompatActivity {
 
 
 
+        Intent activity = new Intent();
+        activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        activity.setClass(getApplicationContext(), GridActivity.class);
+        getApplicationContext().startActivity(activity);
+        finish();
+
+
+
 //        try {
 //            Intent i = new Intent(this, SocketServicio.class);
 //            startService(i);
