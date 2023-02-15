@@ -1,34 +1,156 @@
 package com.tablet.concurso.Actividades;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.tablet.concurso.Adapters.CoursesGVAdapter;
+import com.tablet.concurso.Clases.Constantes;
 import com.tablet.concurso.Clases.DatosTransferDTO;
+import com.tablet.concurso.Clases.Funciones;
+import com.tablet.concurso.Clases.Globales;
 import com.tablet.concurso.R;
+import com.tablet.concurso.Servicios.ConnexionTCP;
+import com.tablet.concurso.Servicios.SocketServicio;
 
 import java.util.ArrayList;
 
 public class GridActivity extends AppCompatActivity {
 
+    private Globales appState;
+    private static final String TAG = "Concurso";
+    private final String ACTION_STRING_ACTIVITY = "ToActivity";
     GridView mainGrid;
     ArrayList<DatosTransferDTO> dataModalArrayList;
+    private ConnexionTCP sendData;
+    private ProgressDialog progressDialog;
 
 
+    private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String cmd = intent.getStringExtra("CMD");
+            String datos = intent.getStringExtra("DATOS");
+            try { progressDialog.dismiss(); }catch (Exception e){}
 
+            if(cmd.equalsIgnoreCase("send_ok")){
+                Log.i(TAG, "--------Debe empezar el Timer------------");
+                //startTimer();
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                Gson gson = new Gson();
+
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
+
+                appState.setTimerSend(1);
+
+
+            }else if(cmd.equalsIgnoreCase("desbloqueo")){
+
+                //stopTimer();
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket");
+//                sendSocket.putExtra("DATA", sharedPreferences.getString(Constantes.idConcursantes, ""));
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+
+                Gson gson = new Gson();
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
+            }else if(cmd.equalsIgnoreCase("ingreso")){
+
+                //stopTimer();
+                //CargaDatos();
+            }else if(cmd.equalsIgnoreCase("relogin")){
+
+                //stopTimer();
+
+                Intent activity = new Intent();
+                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.putExtra("relogin", "relogin");
+                activity.setClass(getApplicationContext(), SplashActivity.class);
+                getApplicationContext().startActivity(activity);
+                finish();
+
+            }else if(cmd.equalsIgnoreCase("close")){
+                finish();
+            }else if(cmd.equalsIgnoreCase("reenvio")){
+                try {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Log.i(TAG, "debe enviar");
+                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                            datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                            datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                            Gson gson2 = new Gson();
+
+                            String json = gson2.toJson(datosTransferDTO);
+                            sendData = new ConnexionTCP(getApplicationContext());
+                            sendData.sendData(json);
+                        }
+                    }, 5000);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+
+        }
+    };
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid);
+        Context context = getApplicationContext();
+        appState = ((Globales) context);
+        if (activityReceiver != null) {
+            try {
+                registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
+            } catch (Exception e) {
+            }
+        }
+
+        /*******************************Para que La pantalla no se apague*********************/
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         mainGrid = (GridView) findViewById(R.id.idGVCourses);
 
         dataModalArrayList = new ArrayList<>();
@@ -110,6 +232,46 @@ public class GridActivity extends AppCompatActivity {
         // our adapter to our list view.
         mainGrid.setAdapter(adapter);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.i(TAG, "resumeeeen");
+        Intent i = new Intent(this, SocketServicio.class);
+        stopService(i);
+        if (activityReceiver != null) {
+            registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        unregisterReceiver(activityReceiver);
+        Intent data = new Intent();
+        setResult(Activity.RESULT_CANCELED, data);
+        Intent i = new Intent(this, SocketServicio.class);
+        stopService(i);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                try {
+                    Intent i = new Intent(this, SocketServicio.class);
+                    stopService(i);
+                    finish();
+                }catch (Exception e ){
+                    e.printStackTrace();
+                }
+                return true;
+            case KeyEvent.KEYCODE_HOME:
+                Log.i(TAG, "Se Oprimio el Boton de Back");
+
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 
