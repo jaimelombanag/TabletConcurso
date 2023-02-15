@@ -21,6 +21,9 @@ public class GridActivity extends AppCompatActivity {
     GridView mainGrid;
     ArrayList<DatosTransferDTO> dataModalArrayList;
 
+
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class GridActivity extends AppCompatActivity {
     }
 
     private void loadDatainGridView() {
+        String foto1 = getString(R.string.foto1);
+        foto1.trim();
 
         DatosTransferDTO datosTransferDTO1 = new DatosTransferDTO();
         datosTransferDTO1.setNombre("Jaime");
@@ -45,7 +50,7 @@ public class GridActivity extends AppCompatActivity {
         datosTransferDTO1.setIdConcursante("1");
         datosTransferDTO1.setFuncion("Funcion");
         datosTransferDTO1.setValor("Valor");
-        datosTransferDTO1.setFoto("Foto");
+        datosTransferDTO1.setFoto(foto1);
         dataModalArrayList.add(datosTransferDTO1);
 
         DatosTransferDTO datosTransferDTO2 = new DatosTransferDTO();
