@@ -65,7 +65,8 @@ public class ConnexionTCP {
             public void run() {
                 try {
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    Log.i(TAG, MODULO + "================================Io:" + sharedPreferences.getString(Constantes.IPSocket, "")+ "------");
+                    Log.i(TAG, MODULO + "==================IP:" + sharedPreferences.getString(Constantes.IPSocket, "")+ "------");
+
                     String IP = sharedPreferences.getString(Constantes.IPSocket, "");
                     //String IP = "201.217.202.180";
                     int Puerto = Constantes.PuertoSocket;
@@ -165,6 +166,10 @@ public class ConnexionTCP {
                 context.sendBroadcast(new_intent);
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.CARGA_DATOS)) {
+
+
+                Log.i("Concunrso", "" + informacion);
+
 
 
 

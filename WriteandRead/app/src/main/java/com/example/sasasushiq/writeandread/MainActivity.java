@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     FileInputStream fileInputStream = new FileInputStream (new File(Environment.getExternalStorageDirectory() + "/Download/" + file));
+                    Log.i("ReadIP",  "" + fileInputStream);
                     InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                     StringBuilder stringBuilder = new StringBuilder();
