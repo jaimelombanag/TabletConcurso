@@ -68,6 +68,10 @@ public class GridActivity extends AppCompatActivity {
 
                 appState.setTimerSend(1);
 
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Constantes.bloqueo, "true");
+                editor.commit();
+
 
             }else if(cmd.equalsIgnoreCase("desbloqueo")){
 
@@ -80,6 +84,10 @@ public class GridActivity extends AppCompatActivity {
 //                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
 //                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
 
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(Constantes.bloqueo, "false");
+                editor.commit();
 
                 DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                 datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);

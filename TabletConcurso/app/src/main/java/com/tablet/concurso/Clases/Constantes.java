@@ -15,5 +15,7 @@ public class Constantes {
 
     public static final String response = "response";
 
+    public static final String bloqueo = "true";
+
 
 }
