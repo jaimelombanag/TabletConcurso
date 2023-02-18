@@ -153,6 +153,10 @@ public class GridActivity extends AppCompatActivity {
 
         mainGrid = (GridView) findViewById(R.id.idGVCourses);
 
+        mainGrid.setNumColumns(3);
+        mainGrid.setVerticalSpacing(1);
+        mainGrid.setHorizontalSpacing(1);
+
         dataModalArrayList = new ArrayList<>();
 
         // here we are calling a method
@@ -162,6 +166,9 @@ public class GridActivity extends AppCompatActivity {
     }
 
     private void loadDatainGridView() {
+
+        String foto1 = getString(R.string.foto1);
+        foto1.trim();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String datos = sharedPreferences.getString(Constantes.response, "");
         Gson gson=new Gson();
@@ -183,6 +190,7 @@ public class GridActivity extends AppCompatActivity {
             datosTransferDTO1.setIdConcursante("1");
             datosTransferDTO1.setFuncion("Funcion");
             datosTransferDTO1.setValor("Valor");
+            //datosTransferDTO1.setFoto(foto1);
             datosTransferDTO1.setFoto(informacion.getListaNombres().get(i).getFoto());
             dataModalArrayList.add(datosTransferDTO1);
         }

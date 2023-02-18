@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo"
-    android:orientation="vertical"
-    tools:context=".Actividades.GridActivity">
+    tools:context=".MainActivity"
+    android:background="@drawable/fondo">
 
-    <!--Grid View for displaying our data from Firebase-->
     <GridView
         android:id="@+id/idGVCourses"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="4" />
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:horizontalSpacing="2dp"
+        android:verticalSpacing="4dp"
+        android:padding="2dp" >
+    </GridView>
 
-</RelativeLayout>
+</FrameLayout>

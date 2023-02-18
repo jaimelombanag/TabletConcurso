@@ -57,13 +57,13 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
         final DatosTransferDTO dataModal = getItem(position);
 
         // initializing our UI components of list view item.
-        TextView nameTV = listitemView.findViewById(R.id.idTVtext);
+        //TextView nameTV = listitemView.findViewById(R.id.idTVtext);
         ImageView courseIV = listitemView.findViewById(R.id.idIVimage);
 
         // after initializing our items we are
         // setting data to our view.
         // below line is use to set data to our text view.
-        nameTV.setText(dataModal.getNombre());
+        //nameTV.setText(dataModal.getNombre());
 
 
 
