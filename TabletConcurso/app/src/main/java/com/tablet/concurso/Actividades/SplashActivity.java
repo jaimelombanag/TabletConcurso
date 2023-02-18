@@ -451,7 +451,9 @@ public class SplashActivity extends AppCompatActivity {
 //        editor.putString(Constantes.IPSocket, txt_ipdireccion.getText().toString());
 //        editor.commit();
 
-        ListaDatos();
+        //ListaDatos();
+        sendData = new ConnexionTCP(getApplicationContext());
+        sendData.sendData("{\"funcion\":\"02\",\"idConcursante\":\"5\"}\n\r");
     }
 
     public void ListaDatos(){

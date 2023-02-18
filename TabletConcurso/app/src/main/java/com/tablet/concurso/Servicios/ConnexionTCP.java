@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.tablet.concurso.Actividades.GridActivity;
 import com.tablet.concurso.Clases.Constantes;
 import com.tablet.concurso.Clases.DatosConcursantesDTO;
 import com.tablet.concurso.Clases.DatosTransferDTO;
@@ -18,11 +19,14 @@ import com.tablet.concurso.Clases.Globales;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 public class ConnexionTCP {
 
@@ -71,7 +75,7 @@ public class ConnexionTCP {
                     //String IP = "201.217.202.180";
                     int Puerto = Constantes.PuertoSocket;
                     socket = new Socket(IP, Puerto);
-                    socket.setSoTimeout(10000);
+                    socket.setSoTimeout(60000);
 
 
                     dataOutputStream = new PrintWriter(socket.getOutputStream(), true);
@@ -85,7 +89,7 @@ public class ConnexionTCP {
                     dataOutputStream.println(mensajeEncriptado + "\n\r");
 
 
-                    String dataSocket = new BufferedReader(dataInputStream).readLine();
+                    String dataSocket = new BufferedReader(dataInputStream, 432424).readLine();
                     String mensajeDesencriptado;
                     mensajeDesencriptado= dataSocket;
                     Log.i(TAG, MODULO  + "========================= SE RECIBE: "+ mensajeDesencriptado+"\n");
@@ -175,17 +179,24 @@ public class ConnexionTCP {
 
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(Constantes.nombresConcursantes, informacion.getNombre());
-                editor.putString(Constantes.valorConcursantes, informacion.getValor());
-                editor.putString(Constantes.fotoConcursantes, informacion.getFoto());
+//                editor.putString(Constantes.nombresConcursantes, informacion.getNombre());
+//                editor.putString(Constantes.valorConcursantes, informacion.getValor());
+//                editor.putString(Constantes.fotoConcursantes, informacion.getFoto());
+                editor.putString(Constantes.response, datos);
                 editor.commit();
 
 
-                Intent new_intent = new Intent();
-                new_intent.putExtra("CMD", "ingreso");
-                new_intent.putExtra("DATA", datos);
-                new_intent.setAction(ACTION_STRING_ACTIVITY);
-                context.sendBroadcast(new_intent);
+                Intent activity = new Intent();
+                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.setClass(context, GridActivity.class);
+                context.startActivity(activity);
+
+
+//                Intent new_intent = new Intent();
+//                new_intent.putExtra("CMD", "ingreso");
+//                new_intent.putExtra("DATA", datos);
+//                new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                context.sendBroadcast(new_intent);
 
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.SEND_VALOR)) {

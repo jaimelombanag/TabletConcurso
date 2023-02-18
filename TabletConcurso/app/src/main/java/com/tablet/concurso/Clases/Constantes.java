@@ -12,4 +12,8 @@ public class Constantes {
     public static final String idConcursantes = "idConcursantes";
     public static final String valorConcursantes = "valorConcursantes";
     public static final String fotoConcursantes = "fotoConcursantes";
+
+    public static final String response = "response";
+
+
 }

@@ -162,68 +162,95 @@ public class GridActivity extends AppCompatActivity {
     }
 
     private void loadDatainGridView() {
-        String foto1 = getString(R.string.foto1);
-        foto1.trim();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String datos = sharedPreferences.getString(Constantes.response, "");
+        Gson gson=new Gson();
+        DatosTransferDTO informacion = null;
+        try {
+            informacion = gson.fromJson(datos, DatosTransferDTO.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        DatosTransferDTO datosTransferDTO1 = new DatosTransferDTO();
-        datosTransferDTO1.setNombre("Jaime");
-        datosTransferDTO1.setAccion("Accion");
-        datosTransferDTO1.setApuesta("Apuesta");
-        datosTransferDTO1.setIdConcursante("1");
-        datosTransferDTO1.setFuncion("Funcion");
-        datosTransferDTO1.setValor("Valor");
-        datosTransferDTO1.setFoto(foto1);
-        dataModalArrayList.add(datosTransferDTO1);
+        Log.i(TAG, "-- La lista de concursantes es: "  + informacion.getListaNombres().size());
 
-        DatosTransferDTO datosTransferDTO2 = new DatosTransferDTO();
-        datosTransferDTO2.setNombre("Claudia");
-        datosTransferDTO2.setAccion("Accion");
-        datosTransferDTO2.setApuesta("Apuesta");
-        datosTransferDTO2.setIdConcursante("1");
-        datosTransferDTO2.setFuncion("Funcion");
-        datosTransferDTO2.setValor("Valor");
-        datosTransferDTO2.setFoto("Foto");
-        dataModalArrayList.add(datosTransferDTO2);
 
-        DatosTransferDTO datosTransferDTO3 = new DatosTransferDTO();
-        datosTransferDTO3.setNombre("Claudia");
-        datosTransferDTO3.setAccion("Accion");
-        datosTransferDTO3.setApuesta("Apuesta");
-        datosTransferDTO3.setIdConcursante("1");
-        datosTransferDTO3.setFuncion("Funcion");
-        datosTransferDTO3.setValor("Valor");
-        datosTransferDTO3.setFoto("Foto");
-        dataModalArrayList.add(datosTransferDTO3);
+        for(int i=0; i< informacion.getListaNombres().size(); i++){
+            DatosTransferDTO datosTransferDTO1 = new DatosTransferDTO();
+            datosTransferDTO1.setNombre(informacion.getListaNombres().get(i).getNombres());
+            datosTransferDTO1.setAccion("Accion");
+            datosTransferDTO1.setApuesta("Apuesta");
+            datosTransferDTO1.setIdConcursante("1");
+            datosTransferDTO1.setFuncion("Funcion");
+            datosTransferDTO1.setValor("Valor");
+            datosTransferDTO1.setFoto(informacion.getListaNombres().get(i).getFoto());
+            dataModalArrayList.add(datosTransferDTO1);
+        }
 
-        DatosTransferDTO datosTransferDTO4 = new DatosTransferDTO();
-        datosTransferDTO4.setNombre("Claudia");
-        datosTransferDTO4.setAccion("Accion");
-        datosTransferDTO4.setApuesta("Apuesta");
-        datosTransferDTO4.setIdConcursante("1");
-        datosTransferDTO4.setFuncion("Funcion");
-        datosTransferDTO4.setValor("Valor");
-        datosTransferDTO4.setFoto("Foto");
-        dataModalArrayList.add(datosTransferDTO4);
 
-        DatosTransferDTO datosTransferDTO5 = new DatosTransferDTO();
-        datosTransferDTO5.setNombre("Claudia");
-        datosTransferDTO5.setAccion("Accion");
-        datosTransferDTO5.setApuesta("Apuesta");
-        datosTransferDTO5.setIdConcursante("1");
-        datosTransferDTO5.setFuncion("Funcion");
-        datosTransferDTO5.setValor("Valor");
-        datosTransferDTO5.setFoto("Foto");
-        dataModalArrayList.add(datosTransferDTO5);
-
-        DatosTransferDTO datosTransferDTO6 = new DatosTransferDTO();
-        datosTransferDTO6.setNombre("Claudia");
-        datosTransferDTO6.setAccion("Accion");
-        datosTransferDTO6.setApuesta("Apuesta");
-        datosTransferDTO6.setIdConcursante("1");
-        datosTransferDTO6.setFuncion("Funcion");
-        datosTransferDTO6.setValor("Valor");
-        datosTransferDTO6.setFoto("Foto");
-        dataModalArrayList.add(datosTransferDTO6);
+//
+//        String foto1 = getString(R.string.foto1);
+//        foto1.trim();
+//
+//        DatosTransferDTO datosTransferDTO1 = new DatosTransferDTO();
+//        datosTransferDTO1.setNombre("Jaime");
+//        datosTransferDTO1.setAccion("Accion");
+//        datosTransferDTO1.setApuesta("Apuesta");
+//        datosTransferDTO1.setIdConcursante("1");
+//        datosTransferDTO1.setFuncion("Funcion");
+//        datosTransferDTO1.setValor("Valor");
+//        datosTransferDTO1.setFoto(foto1);
+//        dataModalArrayList.add(datosTransferDTO1);
+//
+//        DatosTransferDTO datosTransferDTO2 = new DatosTransferDTO();
+//        datosTransferDTO2.setNombre("Claudia");
+//        datosTransferDTO2.setAccion("Accion");
+//        datosTransferDTO2.setApuesta("Apuesta");
+//        datosTransferDTO2.setIdConcursante("1");
+//        datosTransferDTO2.setFuncion("Funcion");
+//        datosTransferDTO2.setValor("Valor");
+//        datosTransferDTO2.setFoto("Foto");
+//        dataModalArrayList.add(datosTransferDTO2);
+//
+//        DatosTransferDTO datosTransferDTO3 = new DatosTransferDTO();
+//        datosTransferDTO3.setNombre("Claudia");
+//        datosTransferDTO3.setAccion("Accion");
+//        datosTransferDTO3.setApuesta("Apuesta");
+//        datosTransferDTO3.setIdConcursante("1");
+//        datosTransferDTO3.setFuncion("Funcion");
+//        datosTransferDTO3.setValor("Valor");
+//        datosTransferDTO3.setFoto("Foto");
+//        dataModalArrayList.add(datosTransferDTO3);
+//
+//        DatosTransferDTO datosTransferDTO4 = new DatosTransferDTO();
+//        datosTransferDTO4.setNombre("Claudia");
+//        datosTransferDTO4.setAccion("Accion");
+//        datosTransferDTO4.setApuesta("Apuesta");
+//        datosTransferDTO4.setIdConcursante("1");
+//        datosTransferDTO4.setFuncion("Funcion");
+//        datosTransferDTO4.setValor("Valor");
+//        datosTransferDTO4.setFoto("Foto");
+//        dataModalArrayList.add(datosTransferDTO4);
+//
+//        DatosTransferDTO datosTransferDTO5 = new DatosTransferDTO();
+//        datosTransferDTO5.setNombre("Claudia");
+//        datosTransferDTO5.setAccion("Accion");
+//        datosTransferDTO5.setApuesta("Apuesta");
+//        datosTransferDTO5.setIdConcursante("1");
+//        datosTransferDTO5.setFuncion("Funcion");
+//        datosTransferDTO5.setValor("Valor");
+//        datosTransferDTO5.setFoto("Foto");
+//        dataModalArrayList.add(datosTransferDTO5);
+//
+//        DatosTransferDTO datosTransferDTO6 = new DatosTransferDTO();
+//        datosTransferDTO6.setNombre("Claudia");
+//        datosTransferDTO6.setAccion("Accion");
+//        datosTransferDTO6.setApuesta("Apuesta");
+//        datosTransferDTO6.setIdConcursante("1");
+//        datosTransferDTO6.setFuncion("Funcion");
+//        datosTransferDTO6.setValor("Valor");
+//        datosTransferDTO6.setFoto("Foto");
+//        dataModalArrayList.add(datosTransferDTO6);
 
         CoursesGVAdapter adapter = new CoursesGVAdapter(GridActivity.this, dataModalArrayList);
 
