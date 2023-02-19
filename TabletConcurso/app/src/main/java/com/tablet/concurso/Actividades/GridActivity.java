@@ -205,10 +205,18 @@ public class GridActivity extends AppCompatActivity {
     public void prueba(String image){
         Log.i(TAG, "Se recibe desde Adapter");
         final Bitmap originalBitmap = StringToBitMap(image);
-        //asignamos el CornerRadius
+        //asignamos el CornerRadiusç
+        imageZoom.setVisibility(View.VISIBLE);
         imageZoom.setImageBitmap(originalBitmap);
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.zoom);
         imageZoom.startAnimation(animation);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                imageZoom.setVisibility(View.GONE);
+            }
+        }, 5500);
     }
 
     public Bitmap StringToBitMap(String encodedString){
