@@ -17,5 +17,7 @@ public class Constantes {
 
     public static final String bloqueo = "true";
 
+    public static final String imagenSelect = "imagenSelect";
+
 
 }

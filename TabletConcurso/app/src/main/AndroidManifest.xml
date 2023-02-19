@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.tablet.concurso">
+
     <!-- ********************************************* -->
     <!-- Permisos que utiliza la aplicacion -->
     <!-- ********************************************* -->
@@ -22,7 +23,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
 
         <activity
             android:name=".Actividades.GridActivity"

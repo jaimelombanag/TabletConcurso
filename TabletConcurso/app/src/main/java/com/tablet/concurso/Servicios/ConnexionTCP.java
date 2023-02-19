@@ -186,10 +186,10 @@ public class ConnexionTCP {
                 editor.commit();
 
 
-//                Intent activity = new Intent();
-//                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                activity.setClass(context, GridActivity.class);
-//                context.startActivity(activity);
+                Intent activity = new Intent();
+                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.setClass(context, GridActivity.class);
+                context.startActivity(activity);
 
 
                 Intent new_intent = new Intent();

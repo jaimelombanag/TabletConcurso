@@ -17,4 +17,12 @@
         android:padding="2dp" >
     </GridView>
 
+    <ImageView
+        android:id="@+id/img_zoom"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center">
+
+    </ImageView>
+
 </FrameLayout>

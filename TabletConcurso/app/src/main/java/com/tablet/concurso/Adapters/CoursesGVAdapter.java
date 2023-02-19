@@ -1,5 +1,6 @@
 package com.tablet.concurso.Adapters;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,9 +14,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,11 +27,13 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
+import com.tablet.concurso.Actividades.GridActivity;
 import com.tablet.concurso.Actividades.MainActivity;
 import com.tablet.concurso.Clases.Constantes;
 import com.tablet.concurso.Clases.DatosConcursantesDTO;
 import com.tablet.concurso.Clases.DatosTransferDTO;
 import com.tablet.concurso.Clases.Funciones;
+import com.tablet.concurso.Clases.Globales;
 import com.tablet.concurso.R;
 import com.tablet.concurso.Servicios.ConnexionTCP;
 
@@ -38,9 +44,12 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
     private ConnexionTCP sendData;
     private ProgressDialog progressDialog;
 
+    private GridActivity mainActivity;
+
     // constructor for our list view adapter.
-    public CoursesGVAdapter(@NonNull Context context, ArrayList<DatosTransferDTO> dataModalArrayList) {
+    public CoursesGVAdapter(@NonNull Context context, ArrayList<DatosTransferDTO> dataModalArrayList, GridActivity act) {
         super(context, 0, dataModalArrayList);
+        this.mainActivity =  act;
     }
 
     @NonNull
@@ -61,7 +70,7 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
 
         // initializing our UI components of list view item.
         //TextView nameTV = listitemView.findViewById(R.id.idTVtext);
-        ImageView courseIV = listitemView.findViewById(R.id.idIVimage);
+        final ImageView courseIV = listitemView.findViewById(R.id.idIVimage);
 
         // after initializing our items we are
         // setting data to our view.
@@ -70,7 +79,7 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
 
 
 
-        Bitmap originalBitmap = StringToBitMap(dataModal.getFoto());
+        final Bitmap originalBitmap = StringToBitMap(dataModal.getFoto());
         //asignamos el CornerRadius
         courseIV.setImageBitmap(originalBitmap);
 
@@ -94,7 +103,12 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
                 }else{
                     Toast.makeText(getContext(), "Item clicked is : " + dataModal.getNombre(), Toast.LENGTH_SHORT).show();
 
-                    MuestraProcessDialog("Enviando...");
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(Constantes.imagenSelect, dataModal.getFoto());
+                    editor.commit();
+
+
+                    //MuestraProcessDialog("Enviando...");
                     DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                     ArrayList<DatosConcursantesDTO> listaNombres = new ArrayList<>();
                     DatosConcursantesDTO datosConcursantesDTO = new DatosConcursantesDTO();
@@ -106,6 +120,11 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
                     datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
                     //datosTransferDTO.setValor(dataModal.getNombre());
                     datosTransferDTO.setListaNombres(listaNombres);
+
+
+
+                    //GridActivity gridActivity = new GridActivity();
+                    mainActivity.prueba(dataModal.getFoto());
 
                     Gson gson = new Gson();
                     String json = gson.toJson(datosTransferDTO);
@@ -145,4 +164,6 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
         }, 3000);
 
     }
+
 }
+

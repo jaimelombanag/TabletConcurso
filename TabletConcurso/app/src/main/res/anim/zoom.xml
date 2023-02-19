@@ -1,0 +1,26 @@
+<?xml version ="1.0" encoding ="utf-8"?><!--  Learn More about how to use App Actions: https://developer.android.com/guide/actions/index.html -->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <scale xmlns:android="http://schemas.android.com/apk/res/android"
+        android:fromXScale="200dp"
+        android:toXScale="8.0"
+        android:fromYScale="200dp"
+        android:toYScale="8.0"
+        android:duration= "5000"
+        android:pivotX="50%"
+        android:pivotY="0%">
+    </scale>
+
+    <!--
+    <scale xmlns:android="http://schemas.android.com/apk/res/android"
+        android:startOffset="5000"
+        android:fromXScale="5.5"
+        android:toXScale="150dp"
+        android:fromYScale="6.0"
+        android:toYScale="30dp"
+        android:duration= "5000"
+        android:pivotX="70%"
+        android:pivotY="30%">
+    </scale>
+    -->
+
+</set>

@@ -163,6 +163,10 @@ public class SplashActivity extends AppCompatActivity {
         ListaDatos();
         LeerIp();
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constantes.bloqueo, "false");
+        editor.commit();
 
 
 //        Intent activity = new Intent();

@@ -8,18 +8,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.GridLayout;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -48,6 +54,8 @@ public class GridActivity extends AppCompatActivity {
 
     private Timer multifuncion = new Timer();
     private int contadorPregunta;
+
+    ImageView imageZoom;
 
 
     private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
@@ -165,6 +173,7 @@ public class GridActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mainGrid = (GridView) findViewById(R.id.idGVCourses);
+        imageZoom = (ImageView) findViewById(R.id.img_zoom);
 
         mainGrid.setNumColumns(3);
         mainGrid.setVerticalSpacing(1);
@@ -174,6 +183,8 @@ public class GridActivity extends AppCompatActivity {
 
         // here we are calling a method
         // to load data in our list view.
+
+
         loadDatainGridView();
 
     }
@@ -189,6 +200,26 @@ public class GridActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    public void prueba(String image){
+        Log.i(TAG, "Se recibe desde Adapter");
+        final Bitmap originalBitmap = StringToBitMap(image);
+        //asignamos el CornerRadius
+        imageZoom.setImageBitmap(originalBitmap);
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.zoom);
+        imageZoom.startAnimation(animation);
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try{
+            byte [] encodeByte= Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        }catch(Exception e){
+            e.getMessage();
+            return null;
+        }
     }
 
 
@@ -327,7 +358,8 @@ public class GridActivity extends AppCompatActivity {
 //        datosTransferDTO6.setFoto("Foto");
 //        dataModalArrayList.add(datosTransferDTO6);
 
-        CoursesGVAdapter adapter = new CoursesGVAdapter(GridActivity.this, dataModalArrayList);
+        CoursesGVAdapter adapter = new CoursesGVAdapter(GridActivity.this, dataModalArrayList, this);
+
 
         // after passing this array list
         // to our adapter class we are setting
