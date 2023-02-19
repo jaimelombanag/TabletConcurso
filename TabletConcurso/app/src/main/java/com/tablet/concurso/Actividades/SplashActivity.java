@@ -107,7 +107,7 @@ public class SplashActivity extends AppCompatActivity {
 
                 Intent activity = new Intent();
                 activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.setClass(getApplicationContext(), MainActivity.class);
+                activity.setClass(getApplicationContext(), GridActivity.class);
                 getApplicationContext().startActivity(activity);
                 finish();
 

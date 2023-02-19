@@ -33,6 +33,8 @@ import com.tablet.concurso.Servicios.ConnexionTCP;
 import com.tablet.concurso.Servicios.SocketServicio;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GridActivity extends AppCompatActivity {
 
@@ -44,6 +46,9 @@ public class GridActivity extends AppCompatActivity {
     private ConnexionTCP sendData;
     private ProgressDialog progressDialog;
 
+    private Timer multifuncion = new Timer();
+    private int contadorPregunta;
+
 
     private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
@@ -54,7 +59,7 @@ public class GridActivity extends AppCompatActivity {
 
             if(cmd.equalsIgnoreCase("send_ok")){
                 Log.i(TAG, "--------Debe empezar el Timer------------");
-                //startTimer();
+                startTimer();
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                 datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
@@ -172,6 +177,60 @@ public class GridActivity extends AppCompatActivity {
         loadDatainGridView();
 
     }
+    private void startTimer(){
+        try {
+            multifuncion.scheduleAtFixedRate(new SendMultifuncion(), 0, 1000);
+        }catch (Exception e){
+
+            stopTimer();
+            ReStartTimer();
+
+
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void ReStartTimer(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                startTimer();
+
+
+            }
+        }, 2000);
+    }
+
+    private void stopTimer(){
+        multifuncion.cancel();
+    }
+
+    private class SendMultifuncion extends TimerTask {
+        public void run() {
+            contadorPregunta++;
+            if(contadorPregunta > 5){
+                contadorPregunta = 0;
+//                Intent sendSocket = new Intent();
+//                sendSocket.putExtra("CMD", "EnvioSocket3");
+//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                Gson gson = new Gson();
+
+                String json = gson.toJson(datosTransferDTO);
+                sendData = new ConnexionTCP(getApplicationContext());
+                sendData.sendData(json);
+
+            }
+        }
+    }
 
     private void loadDatainGridView() {
 
@@ -195,7 +254,7 @@ public class GridActivity extends AppCompatActivity {
             datosTransferDTO1.setNombre(informacion.getListaNombres().get(i).getNombres());
             datosTransferDTO1.setAccion("Accion");
             datosTransferDTO1.setApuesta("Apuesta");
-            datosTransferDTO1.setIdConcursante("1");
+            datosTransferDTO1.setIdConcursante(informacion.getListaNombres().get(i).getIdConcursante());
             datosTransferDTO1.setFuncion("Funcion");
             datosTransferDTO1.setValor("Valor");
             //datosTransferDTO1.setFoto(foto1);

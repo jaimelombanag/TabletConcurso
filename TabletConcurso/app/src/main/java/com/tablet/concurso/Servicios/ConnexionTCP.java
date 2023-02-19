@@ -186,17 +186,17 @@ public class ConnexionTCP {
                 editor.commit();
 
 
-                Intent activity = new Intent();
-                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.setClass(context, GridActivity.class);
-                context.startActivity(activity);
+//                Intent activity = new Intent();
+//                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                activity.setClass(context, GridActivity.class);
+//                context.startActivity(activity);
 
 
-//                Intent new_intent = new Intent();
-//                new_intent.putExtra("CMD", "ingreso");
-//                new_intent.putExtra("DATA", datos);
-//                new_intent.setAction(ACTION_STRING_ACTIVITY);
-//                context.sendBroadcast(new_intent);
+                Intent new_intent = new Intent();
+                new_intent.putExtra("CMD", "ingreso");
+                new_intent.putExtra("DATA", datos);
+                new_intent.setAction(ACTION_STRING_ACTIVITY);
+                context.sendBroadcast(new_intent);
 
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.SEND_VALOR)) {
