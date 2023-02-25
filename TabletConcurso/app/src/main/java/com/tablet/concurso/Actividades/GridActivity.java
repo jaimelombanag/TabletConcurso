@@ -57,6 +57,8 @@ public class GridActivity extends AppCompatActivity {
 
     ImageView imageZoom;
 
+    private ImageView imagen_concursantes;
+
 
     private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
         @Override
@@ -174,7 +176,7 @@ public class GridActivity extends AppCompatActivity {
 
         mainGrid = (GridView) findViewById(R.id.idGVCourses);
         imageZoom = (ImageView) findViewById(R.id.img_zoom);
-
+        imagen_concursantes = (ImageView) findViewById(R.id.imagen_concursantes);
         mainGrid.setNumColumns(3);
         mainGrid.setVerticalSpacing(1);
         mainGrid.setHorizontalSpacing(1);
