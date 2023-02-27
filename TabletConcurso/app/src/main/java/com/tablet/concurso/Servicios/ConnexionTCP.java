@@ -127,23 +127,25 @@ public class ConnexionTCP extends Observable {
                     }
 
                 } catch (UnknownHostException e) {
+                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                    datosTransferDTO = null;
+                    respuestaSocket.postValue(datosTransferDTO);
                     Log.e(TAG, MODULO + "Error tipo: UnknownHostException");
                     e.printStackTrace();
                 } catch (ConnectException e) {
                     Log.e(TAG, MODULO + "Error tipo: ConnectException");
-
-                    sendData(data);
-
+                    //sendData(data);
                     e.printStackTrace();
                 } catch (SocketTimeoutException e) {
+                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                    datosTransferDTO = null;
+                    respuestaSocket.postValue(datosTransferDTO);
                     Log.e(TAG, MODULO + "Error por SocketTimeoutException   " );
                     e.printStackTrace();
-                    Intent error = new Intent();
-                    error.putExtra("CMD", "Error");
-                    error.putExtra("DATA", "SocketTimeoutException");
-                    error.setAction(ACTION_STRING_ACTIVITY);
-                    context.sendBroadcast(error);
                 } catch (IOException e) {
+                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                    datosTransferDTO = null;
+                    respuestaSocket.postValue(datosTransferDTO);
                     Log.e(TAG, MODULO + "Error tipo: IOException");
                     e.printStackTrace();
                 } finally {

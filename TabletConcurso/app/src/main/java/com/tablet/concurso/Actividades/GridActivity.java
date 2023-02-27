@@ -74,104 +74,6 @@ public class GridActivity extends AppCompatActivity{
     SocketViewModel socketViewModel;
 
 
-
-    private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String cmd = intent.getStringExtra("CMD");
-            String datos = intent.getStringExtra("DATOS");
-            try { progressDialog.dismiss(); }catch (Exception e){}
-
-            if(cmd.equalsIgnoreCase("send_ok")){
-                Log.i(TAG, "--------Debe empezar el Timer------------");
-                startTimer();
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
-                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
-                Gson gson = new Gson();
-
-                String json = gson.toJson(datosTransferDTO);
-                sendData = new ConnexionTCP(getApplicationContext());
-                sendData.sendData(json);
-
-
-                appState.setTimerSend(1);
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(Constantes.bloqueo, "true");
-                editor.commit();
-
-
-            }else if(cmd.equalsIgnoreCase("desbloqueo")){
-
-                //stopTimer();
-
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//                Intent sendSocket = new Intent();
-//                sendSocket.putExtra("CMD", "EnvioSocket");
-//                sendSocket.putExtra("DATA", sharedPreferences.getString(Constantes.idConcursantes, ""));
-//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
-
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(Constantes.bloqueo, "false");
-                editor.commit();
-
-                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);
-                datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
-
-                Gson gson = new Gson();
-                String json = gson.toJson(datosTransferDTO);
-                sendData = new ConnexionTCP(getApplicationContext());
-                sendData.sendData(json);
-
-            }else if(cmd.equalsIgnoreCase("ingreso")){
-
-                //stopTimer();
-                //CargaDatos();
-            }else if(cmd.equalsIgnoreCase("relogin")){
-
-                //stopTimer();
-
-                Intent activity = new Intent();
-                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.putExtra("relogin", "relogin");
-                activity.setClass(getApplicationContext(), SplashActivity.class);
-                getApplicationContext().startActivity(activity);
-                finish();
-
-            }else if(cmd.equalsIgnoreCase("close")){
-                finish();
-            }else if(cmd.equalsIgnoreCase("reenvio")){
-                try {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Log.i(TAG, "debe enviar");
-                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                            datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
-                            datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
-                            Gson gson2 = new Gson();
-
-                            String json = gson2.toJson(datosTransferDTO);
-                            sendData = new ConnexionTCP(getApplicationContext());
-                            sendData.sendData(json);
-                        }
-                    }, 5000);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-
-
-        }
-    };
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,15 +81,6 @@ public class GridActivity extends AppCompatActivity{
         setContentView(R.layout.activity_grid);
         Context context = getApplicationContext();
         appState = ((Globales) context);
-        if (activityReceiver != null) {
-            try {
-                registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
-            } catch (Exception e) {
-            }
-        }
-
-
-
 
         /*******************************Para que La pantalla no se apague*********************/
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -506,15 +399,11 @@ public class GridActivity extends AppCompatActivity{
         Log.i(TAG, "resumeeeen");
         Intent i = new Intent(this, SocketServicio.class);
         stopService(i);
-        if (activityReceiver != null) {
-            registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
-        }
     }
 
     @Override
     public void finish() {
         super.finish();
-        unregisterReceiver(activityReceiver);
         Intent data = new Intent();
         setResult(Activity.RESULT_CANCELED, data);
         Intent i = new Intent(this, SocketServicio.class);
@@ -526,9 +415,10 @@ public class GridActivity extends AppCompatActivity{
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 try {
-                    Intent i = new Intent(this, SocketServicio.class);
-                    stopService(i);
-                    finish();
+                    alertDialog();
+//                    Intent i = new Intent(this, SocketServicio.class);
+//                    stopService(i);
+//                    finish();
                 }catch (Exception e ){
                     e.printStackTrace();
                 }
@@ -542,16 +432,30 @@ public class GridActivity extends AppCompatActivity{
 
     public void alertDialog(){
         AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
-        dialogo1.setTitle("Importante");
-        dialogo1.setMessage("¿ Acepta la ejecución de este programa en modo prueba ?");
+        dialogo1.setTitle("Salir y Reiniciar");
+        dialogo1.setMessage("¿ Desea cerrar y reiniciar la aplicación ?");
         dialogo1.setCancelable(false);
         dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogo1, int id) {
-                Intent activity = new Intent();
-                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.setClass(getApplicationContext(), SplashActivity.class);
-                getApplicationContext().startActivity(activity);
+
+                stopTimer();
+
                 finish();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(Constantes.closeApp, "true");
+                        editor.commit();
+
+                        Intent activity = new Intent();
+                        activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.setClass(getApplicationContext(), SplashActivity.class);
+                        getApplicationContext().startActivity(activity);
+                    }
+                }, 3500);
 
             }
         });

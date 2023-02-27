@@ -103,25 +103,25 @@ public class SplashActivity extends AppCompatActivity {
         txt_ipdireccion = (EditText) findViewById(R.id.txt_ipdireccion);
         Permisos();
 
-
-        try {
-            String valor = getIntent().getExtras().getString("relogin");
-            if(valor.equalsIgnoreCase("relogin")){
-//                Intent sendSocket = new Intent();
-//                sendSocket.putExtra("CMD", "EnvioSocket0");
-//                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
-//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
-
-                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                datosTransferDTO.setFuncion(Funciones.LOGIN);
-                Gson gson = new Gson();
-                String json = gson.toJson(datosTransferDTO);
-                sendData = new ConnexionTCP(getApplicationContext());
-                sendData.sendData(json);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//
+//        try {
+//            String valor = getIntent().getExtras().getString("relogin");
+//            if(valor.equalsIgnoreCase("relogin")){
+////                Intent sendSocket = new Intent();
+////                sendSocket.putExtra("CMD", "EnvioSocket0");
+////                sendSocket.setAction(SocketServicio.ACTION_MSG_TO_SERVICE);
+////                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(sendSocket);
+//
+//                DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+//                datosTransferDTO.setFuncion(Funciones.LOGIN);
+//                Gson gson = new Gson();
+//                String json = gson.toJson(datosTransferDTO);
+//                sendData = new ConnexionTCP(getApplicationContext());
+//                sendData.sendData(json);
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
         list_concursantes = (ListView) findViewById(R.id.list_concursantes);
         appState.setTimerSend(0);
@@ -144,25 +144,38 @@ public class SplashActivity extends AppCompatActivity {
             public void onChanged(DatosTransferDTO rtasocket) {
                 Log.i(TAG, "-------- Respuesta Socket ViewModel Splash:  " + new Gson().toJson(rtasocket));
 
-                if(rtasocket.getFuncion().equalsIgnoreCase("00")) {
-                    androidFlavors = new ModelInventario[appState.getDatosConcursantes().size()];
-                    for (int i = 0; i < appState.getDatosConcursantes().size(); i++) {
 
-                        Log.i(TAG, "==========Nombre: " + appState.getDatosConcursantes().get(i).getNombres());
-                        Log.i(TAG, "==========Id: " + appState.getDatosConcursantes().get(i).getIdConcursante());
+                if(rtasocket != null){
+                    if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.LOGIN)) {
+                        androidFlavors = new ModelInventario[appState.getDatosConcursantes().size()];
+                        for (int i = 0; i < appState.getDatosConcursantes().size(); i++) {
 
-                        androidFlavors[i] = new ModelInventario(appState.getDatosConcursantes().get(i).getNombres(), appState.getDatosConcursantes().get(i).getIdConcursante(), R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+                            Log.i(TAG, "==========Nombre: " + appState.getDatosConcursantes().get(i).getNombres());
+                            Log.i(TAG, "==========Id: " + appState.getDatosConcursantes().get(i).getIdConcursante());
+
+                            androidFlavors[i] = new ModelInventario(appState.getDatosConcursantes().get(i).getNombres(), appState.getDatosConcursantes().get(i).getIdConcursante(), R.mipmap.ic_launcher, R.mipmap.ic_launcher);
+
+                        }
+                        MuestraConcursantes2();
+                    }
+                    if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.CARGA_DATOS)) {
+
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        if(sharedPreferences.getString(Constantes.closeApp, "").equalsIgnoreCase("false")){
+                            try{progressDialog.dismiss();}catch (Exception e){}
+                            Intent activity = new Intent();
+                            activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            activity.setClass(getApplicationContext(), GridActivity.class);
+                            getApplicationContext().startActivity(activity);
+                            finish();
+                        }
 
                     }
-                    MuestraConcursantes2();
-                }else if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.CARGA_DATOS)) {
-                    try{progressDialog.dismiss();}catch (Exception e){}
-                    Intent activity = new Intent();
-                    activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    activity.setClass(getApplicationContext(), GridActivity.class);
-                    getApplicationContext().startActivity(activity);
-                    finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR DE CONEXION DE SOKET", Toast.LENGTH_SHORT).show();
                 }
+
+
 
             }
         });
@@ -384,7 +397,9 @@ public class SplashActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(Constantes.idConcursantes, salidasAdapter.getItem(position).getVersionNumber());
+                editor.putString(Constantes.closeApp, "false");
                 editor.commit();
+
 
                 DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
                 datosTransferDTO.setFuncion(Funciones.CARGA_DATOS);

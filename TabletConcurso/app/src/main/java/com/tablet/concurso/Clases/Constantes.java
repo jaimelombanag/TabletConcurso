@@ -19,5 +19,7 @@ public class Constantes {
 
     public static final String imagenSelect = "imagenSelect";
 
+    public static final String closeApp = "false";
+
 
 }
