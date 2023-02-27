@@ -1,5 +1,7 @@
 package com.tablet.concurso.Servicios;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,8 +29,9 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.Observable;
 
-public class ConnexionTCP {
+public class ConnexionTCP extends Observable {
 
     private static final String TAG = "Concurso";
     private static final String MODULO = "TCP";
@@ -41,6 +44,16 @@ public class ConnexionTCP {
     private String mensajeEncriptado;
     private Context context;
     public AlertDialog alert;
+    private String requestSocket;
+    private static ConnexionTCP INSTANCE = null;
+    public static MutableLiveData<DatosTransferDTO> respuestaSocket;
+
+    public LiveData<DatosTransferDTO> RespuestaDatos() {
+        if (respuestaSocket == null) {
+            respuestaSocket = new MutableLiveData<>();
+        }
+        return respuestaSocket;
+    }
 
 
     public ConnexionTCP(Context _context) {
@@ -57,6 +70,21 @@ public class ConnexionTCP {
             e.printStackTrace();
         }
     }
+
+    public ConnexionTCP() {
+        requestSocket = "Aca ira todo lo del socket";
+        setChanged();
+        notifyObservers();
+    }
+
+    // Returns a single instance of this class, creating it if necessary.
+    public static ConnexionTCP getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new ConnexionTCP();
+        }
+        return INSTANCE;
+    }
+
 
     public void sendData(final String data) {
         mensajeEncriptado = data;
@@ -95,6 +123,7 @@ public class ConnexionTCP {
                     Log.i(TAG, MODULO  + "========================= SE RECIBE: "+ mensajeDesencriptado+"\n");
                     if (mensajeDesencriptado != null) {
                         ProcessRespuesta(mensajeDesencriptado);
+
                     }
 
                 } catch (UnknownHostException e) {
@@ -146,6 +175,7 @@ public class ConnexionTCP {
             DatosTransferDTO informacion = null;
             try {
                 informacion = gson.fromJson(datos, DatosTransferDTO.class);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -162,20 +192,16 @@ public class ConnexionTCP {
                     appState.getDatosConcursantes().add(list);
 
                 }
+                respuestaSocket.postValue(informacion);
 
-                Intent new_intent = new Intent();
-                new_intent.putExtra("CMD", "listaCOncursantes");
-                new_intent.putExtra("DATA", datos);
-                new_intent.setAction(ACTION_STRING_ACTIVITY);
-                context.sendBroadcast(new_intent);
+//                Intent new_intent = new Intent();
+//                new_intent.putExtra("CMD", "listaCOncursantes");
+//                new_intent.putExtra("DATA", datos);
+//                new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                context.sendBroadcast(new_intent);
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.CARGA_DATOS)) {
-
-
                 Log.i("Concunrso", "" + informacion);
-
-
-
 
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -185,59 +211,54 @@ public class ConnexionTCP {
                 editor.putString(Constantes.response, datos);
                 editor.commit();
 
+                respuestaSocket.postValue(informacion);
 
-                Intent activity = new Intent();
-                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.setClass(context, GridActivity.class);
-                context.startActivity(activity);
-
-
-                Intent new_intent = new Intent();
-                new_intent.putExtra("CMD", "ingreso");
-                new_intent.putExtra("DATA", datos);
-                new_intent.setAction(ACTION_STRING_ACTIVITY);
-                context.sendBroadcast(new_intent);
+//                Intent new_intent = new Intent();
+//                new_intent.putExtra("CMD", "ingreso");
+//                new_intent.putExtra("DATA", datos);
+//                new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                context.sendBroadcast(new_intent);
 
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.SEND_VALOR)) {
 
-                Intent new_intent = new Intent();
-                new_intent.putExtra("CMD", "send_ok");
-                new_intent.putExtra("DATA", datos);
-                new_intent.setAction(ACTION_STRING_ACTIVITY);
-                context.sendBroadcast(new_intent);
+//                Intent new_intent = new Intent();
+//                new_intent.putExtra("CMD", "send_ok");
+//                new_intent.putExtra("DATA", datos);
+//                new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                context.sendBroadcast(new_intent);
+                respuestaSocket.postValue(informacion);
 
             }else  if (informacion.getFuncion().equalsIgnoreCase(Funciones.MULTIFUNCION)) {
-
-                if(informacion.getAccion().equalsIgnoreCase("0")){
-
-                    Intent new_intent = new Intent();
-                    new_intent.putExtra("CMD", "reenvio");
-                    new_intent.putExtra("DATA", datos);
-                    new_intent.setAction(ACTION_STRING_ACTIVITY);
-                    context.sendBroadcast(new_intent);
-
-                }else  if(informacion.getAccion().equalsIgnoreCase("1")){
-                    Intent new_intent = new Intent();
-                    new_intent.putExtra("CMD", "desbloqueo");
-                    new_intent.putExtra("DATA", datos);
-                    new_intent.setAction(ACTION_STRING_ACTIVITY);
-                    context.sendBroadcast(new_intent);
-                }else  if(informacion.getAccion().equalsIgnoreCase("2")){
-
-                    Intent new_intent = new Intent();
-                    new_intent.putExtra("CMD", "relogin");
-                    new_intent.putExtra("DATA", datos);
-                    new_intent.setAction(ACTION_STRING_ACTIVITY);
-                    context.sendBroadcast(new_intent);
-                }else  if(informacion.getAccion().equalsIgnoreCase("3")){
-                    Intent new_intent = new Intent();
-                    new_intent.putExtra("CMD", "close");
-                    new_intent.putExtra("DATA", datos);
-                    new_intent.setAction(ACTION_STRING_ACTIVITY);
-                    context.sendBroadcast(new_intent);
-                }
-
+                respuestaSocket.postValue(informacion);
+//                if(informacion.getAccion().equalsIgnoreCase("0")){
+//
+//                    Intent new_intent = new Intent();
+//                    new_intent.putExtra("CMD", "reenvio");
+//                    new_intent.putExtra("DATA", datos);
+//                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                    context.sendBroadcast(new_intent);
+//
+//                }else  if(informacion.getAccion().equalsIgnoreCase("1")){
+//                    Intent new_intent = new Intent();
+//                    new_intent.putExtra("CMD", "desbloqueo");
+//                    new_intent.putExtra("DATA", datos);
+//                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                    context.sendBroadcast(new_intent);
+//                }else  if(informacion.getAccion().equalsIgnoreCase("2")){
+//
+//                    Intent new_intent = new Intent();
+//                    new_intent.putExtra("CMD", "relogin");
+//                    new_intent.putExtra("DATA", datos);
+//                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                    context.sendBroadcast(new_intent);
+//                }else  if(informacion.getAccion().equalsIgnoreCase("3")){
+//                    Intent new_intent = new Intent();
+//                    new_intent.putExtra("CMD", "close");
+//                    new_intent.putExtra("DATA", datos);
+//                    new_intent.setAction(ACTION_STRING_ACTIVITY);
+//                    context.sendBroadcast(new_intent);
+//                }
 
             }
 
@@ -245,5 +266,9 @@ public class ConnexionTCP {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public String getRequestSocket() {
+        return requestSocket;
     }
 }

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,6 +43,7 @@ import com.tablet.concurso.R;
 import com.tablet.concurso.Servicios.ConnexionTCP;
 import com.tablet.concurso.Servicios.SocketServicio;
 import com.tablet.concurso.Servicios.Temporizador;
+import com.tablet.concurso.viewModel.SocketViewModel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -55,6 +57,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import android.arch.lifecycle.ViewModelProviders;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -72,6 +75,8 @@ public class SplashActivity extends AppCompatActivity {
     private int REQUEST_PERMISSION2 =2;
     private String file = "IP_Direccion.txt";
 
+    SocketViewModel socketViewModel;
+
 
 //    ModelInventario[] androidFlavors = {
 //            new ModelInventario("CT 02", "- Sin Confirmar", R.mipmap.ic_launcher, R.mipmap.ic_launcher),
@@ -83,38 +88,6 @@ public class SplashActivity extends AppCompatActivity {
 
     //ArrayList<ModelInventario> dataModels;
 
-    private final BroadcastReceiver activityReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String cmd = intent.getStringExtra("CMD");
-            String datos = intent.getStringExtra("DATOS");
-            try { progressDialog.dismiss(); }catch (Exception e){}
-            if(cmd.equalsIgnoreCase("listaCOncursantes")){
-
-                androidFlavors = new ModelInventario[appState.getDatosConcursantes().size()];
-                for(int i=0; i < appState.getDatosConcursantes().size(); i++){
-
-                    Log.i(TAG, "==========Nombre: "  +  appState.getDatosConcursantes().get(i).getNombres());
-                    Log.i(TAG, "==========Id: "  +  appState.getDatosConcursantes().get(i).getIdConcursante());
-
-                    androidFlavors[i] = new ModelInventario(appState.getDatosConcursantes().get(i).getNombres(), appState.getDatosConcursantes().get(i).getIdConcursante(), R.mipmap.ic_launcher, R.mipmap.ic_launcher);
-
-                }
-
-                MuestraConcursantes2();
-
-            }else if(cmd.equalsIgnoreCase("ingreso")){
-
-                Intent activity = new Intent();
-                activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                activity.setClass(getApplicationContext(), GridActivity.class);
-                getApplicationContext().startActivity(activity);
-                finish();
-
-            }
-
-        }
-    };
 
 
     @Override
@@ -124,12 +97,6 @@ public class SplashActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         appState = ((Globales) context);
 
-        if (activityReceiver != null) {
-            try {
-                registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
-            } catch (Exception e) {
-            }
-        }
         /*******************************Para que La pantalla no se apague*********************/
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -169,39 +136,38 @@ public class SplashActivity extends AppCompatActivity {
         editor.commit();
 
 
-//        Intent activity = new Intent();
-//        activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        activity.setClass(getApplicationContext(), GridActivity.class);
-//        getApplicationContext().startActivity(activity);
-//        finish();
 
+        //Getting ViewModel for current activity
+        socketViewModel = ViewModelProviders.of(this).get(SocketViewModel.class);
+        socketViewModel.getRespuesta().observe(this, new Observer<DatosTransferDTO>() {
+            @Override
+            public void onChanged(DatosTransferDTO rtasocket) {
+                Log.i(TAG, "-------- Respuesta Socket ViewModel Splash:  " + new Gson().toJson(rtasocket));
 
+                if(rtasocket.getFuncion().equalsIgnoreCase("00")) {
+                    androidFlavors = new ModelInventario[appState.getDatosConcursantes().size()];
+                    for (int i = 0; i < appState.getDatosConcursantes().size(); i++) {
 
-//        try {
-//            Intent i = new Intent(this, SocketServicio.class);
-//            startService(i);
-//            Intent timer = new Intent(this, Temporizador.class);
-//            startService(timer);
-//        }catch (Exception e ){
-//            e.printStackTrace();
-//        }
-//
-//
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                Log.i(TAG, "debe enviar");
-//
-//                //SendInicio();
-//
-//
-//
-//            }
-//        }, 3000);
+                        Log.i(TAG, "==========Nombre: " + appState.getDatosConcursantes().get(i).getNombres());
+                        Log.i(TAG, "==========Id: " + appState.getDatosConcursantes().get(i).getIdConcursante());
 
+                        androidFlavors[i] = new ModelInventario(appState.getDatosConcursantes().get(i).getNombres(), appState.getDatosConcursantes().get(i).getIdConcursante(), R.mipmap.ic_launcher, R.mipmap.ic_launcher);
 
+                    }
+                    MuestraConcursantes2();
+                }else if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.CARGA_DATOS)) {
+                    try{progressDialog.dismiss();}catch (Exception e){}
+                    Intent activity = new Intent();
+                    activity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.setClass(getApplicationContext(), GridActivity.class);
+                    getApplicationContext().startActivity(activity);
+                    finish();
+                }
+
+            }
+        });
     }
+
 
 
     /**********************************************************************************************/
@@ -397,16 +363,9 @@ public class SplashActivity extends AppCompatActivity {
 
 
     public void MuestraConcursantes2(){
-
-
         salidasAdapter = new ListInventarioAdapter(this, Arrays.asList(androidFlavors));
-
-
         // Get a reference to the ListView, and attach this adapter to it.
-
         list_concursantes.setAdapter(salidasAdapter);
-
-
         list_concursantes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -475,18 +434,14 @@ public class SplashActivity extends AppCompatActivity {
         super.onResume();
         Log.i(TAG, "resumeeeen");
 
-        if (activityReceiver != null) {
-            registerReceiver(activityReceiver, new IntentFilter(ACTION_STRING_ACTIVITY));
-        }
+
     }
 
     @Override
     public void finish() {
         super.finish();
-        unregisterReceiver(activityReceiver);
         Intent data = new Intent();
         setResult(Activity.RESULT_CANCELED, data);
-
     }
 
     @Override
