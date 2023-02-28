@@ -393,7 +393,7 @@ public class GridActivity extends AppCompatActivity{
             //asignamos el CornerRadius
             roundedDrawable.setCornerRadius(originalBitmap.getHeight());
             imagen_concursantes.setImageDrawable(roundedDrawable);
-            txt_nombres.setText(nombre);
+            txt_nombres.setText(nombre + "  ");
 
         }catch (Exception e){
             e.printStackTrace();
