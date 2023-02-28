@@ -67,7 +67,7 @@ public class ConnexionTCP extends Observable {
 
         }catch(Exception e){
             Log.e(TAG, MODULO + "  "+e.getMessage());
-            e.printStackTrace();
+           // e.printStackTrace();
         }
     }
 

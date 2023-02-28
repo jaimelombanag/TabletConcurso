@@ -6,5 +6,6 @@
 
     <color name="colorTransparente">#10000000</color>
     <color name="colorBlanco">#FFFFFF</color>
+    <color name="colorAmarillo">#F3F020</color>
 
 </resources>

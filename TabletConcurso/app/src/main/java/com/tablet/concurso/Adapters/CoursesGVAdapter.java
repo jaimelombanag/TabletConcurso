@@ -124,7 +124,7 @@ public class CoursesGVAdapter extends ArrayAdapter<DatosTransferDTO> {
 
 
                     //GridActivity gridActivity = new GridActivity();
-                    mainActivity.prueba(dataModal.getFoto());
+                    //mainActivity.prueba(dataModal.getFoto());
 
                     Gson gson = new Gson();
                     String json = gson.toJson(datosTransferDTO);

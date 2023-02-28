@@ -111,21 +111,29 @@ public class GridActivity extends AppCompatActivity{
 
                 if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.SEND_VALOR)) {
                     Log.i(TAG, "--------Debe empezar el Timer------------");
-                    startTimer();
-                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                    DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                    datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
-                    datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
-                    Gson gson = new Gson();
 
-                    String json = gson.toJson(datosTransferDTO);
-                    sendData = new ConnexionTCP(getApplicationContext());
-                    sendData.sendData(json);
+                    if(rtasocket.getValor().equalsIgnoreCase("OK")){
+                        startTimer();
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+                        datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+                        datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+                        Gson gson = new Gson();
 
-                    appState.setTimerSend(1);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString(Constantes.bloqueo, "true");
-                    editor.commit();
+
+                        prueba(sharedPreferences.getString(Constantes.imagenSelect, ""));
+
+                        String json = gson.toJson(datosTransferDTO);
+                        sendData = new ConnexionTCP(getApplicationContext());
+                        sendData.sendData(json);
+
+                        appState.setTimerSend(1);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(Constantes.bloqueo, "true");
+                        editor.commit();
+                    }else{
+                        alertDialogMessage(rtasocket.getValor());
+                    }
 
                 }else if(rtasocket.getFuncion().equalsIgnoreCase(Funciones.MULTIFUNCION)) {
                     if(rtasocket.getAccion().equalsIgnoreCase("0")){
@@ -461,6 +469,20 @@ public class GridActivity extends AppCompatActivity{
         });
         dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogo1, int id) {
+
+            }
+        });
+        dialogo1.show();
+    }
+
+    public void alertDialogMessage(String message){
+        AlertDialog.Builder dialogo1 = new AlertDialog.Builder(this);
+        dialogo1.setTitle(message);
+        //dialogo1.setMessage("¿ Desea cerrar y reiniciar la aplicación ?");
+        dialogo1.setCancelable(false);
+        dialogo1.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+
 
             }
         });
