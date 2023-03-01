@@ -113,24 +113,23 @@ public class GridActivity extends AppCompatActivity{
                     Log.i(TAG, "--------Debe empezar el Timer------------");
 
                     if(rtasocket.getValor().equalsIgnoreCase("OK")){
-                        startTimer();
+//                        startTimer();
                         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
-                        datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
-                        datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
-                        Gson gson = new Gson();
-
-
+//                        DatosTransferDTO datosTransferDTO = new DatosTransferDTO();
+//                        datosTransferDTO.setFuncion(Funciones.MULTIFUNCION);
+//                        datosTransferDTO.setIdConcursante(sharedPreferences.getString(Constantes.idConcursantes, ""));
+//                        Gson gson = new Gson();
+//
+//                        String json = gson.toJson(datosTransferDTO);
+//                        sendData = new ConnexionTCP(getApplicationContext());
+//                        sendData.sendData(json);
+//
+//                        appState.setTimerSend(1);
+//                        SharedPreferences.Editor editor = sharedPreferences.edit();
+//                        editor.putString(Constantes.bloqueo, "true");
+//                        editor.commit();
+                        //Animacion de la imagen
                         prueba(sharedPreferences.getString(Constantes.imagenSelect, ""));
-
-                        String json = gson.toJson(datosTransferDTO);
-                        sendData = new ConnexionTCP(getApplicationContext());
-                        sendData.sendData(json);
-
-                        appState.setTimerSend(1);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(Constantes.bloqueo, "true");
-                        editor.commit();
                     }else{
                         alertDialogMessage(rtasocket.getValor());
                     }
